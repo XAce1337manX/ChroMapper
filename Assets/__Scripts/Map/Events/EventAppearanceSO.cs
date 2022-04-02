@@ -141,7 +141,6 @@ public class EventAppearanceSO : ScriptableObject
                 e.UpdateOffset(e.FadeShaderOffset, false);
                 break;
             case MapEvent.LightValueBlueTransition:
-                e.EventModel = EventModelType.Block;
                 e.UpdateOffset(e.TransitionShaderOffset, false);
                 e.ChangeBaseColor(offColor, false);
                 ChangeTransitionColor(e, boost);
@@ -158,7 +157,6 @@ public class EventAppearanceSO : ScriptableObject
                 e.UpdateOffset(e.FadeShaderOffset, false);
                 break;
             case MapEvent.LightValueRedTransition:
-                e.EventModel = EventModelType.Block;
                 e.UpdateOffset(e.TransitionShaderOffset, false);
                 e.ChangeBaseColor(offColor, false);
                 ChangeTransitionColor(e, boost);
