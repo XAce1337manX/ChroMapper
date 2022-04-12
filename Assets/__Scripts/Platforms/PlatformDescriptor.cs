@@ -395,9 +395,16 @@ public class PlatformDescriptor : MonoBehaviour
             float duration = (nextEvent.Time - e.Time) / (BeatSaberSongContainer.Instance.Song.BeatsPerMinute / 60);
             float nextFloat = nextEvent.FloatValue;
 
+            // Handle from Off event
             if (e.Value == MapEvent.LightValueOff)
             {
-                if (MapEvent.IsBlueEventFromValue(nextEvent.Value))
+                if (Settings.Instance.EmulateChromaLite && nextEvent.CustomData != null && nextEvent.CustomData["_color"] != null) {
+                Color newColor = nextEvent.CustomData["_color"];
+                    light.UpdateTargetAlpha(mainColor.a * nextEvent.FloatValue, duration);
+                    light.UpdateTargetColor(newColor.Multiply(LightsManager.HDRIntensity), 0);
+                    light.UpdateTargetColor(newColor.Multiply(LightsManager.HDRIntensity), duration);
+                }
+                else if (MapEvent.IsBlueEventFromValue(nextEvent.Value))
                 {
                     light.UpdateTargetAlpha(mainColor.a * nextEvent.FloatValue, duration);
                     light.UpdateTargetColor(mainColor.Multiply(LightsManager.HDRIntensity), 0);
@@ -407,6 +414,13 @@ public class PlatformDescriptor : MonoBehaviour
                     light.UpdateTargetAlpha(invertedColor.a * nextEvent.FloatValue, duration);
                     light.UpdateTargetColor(invertedColor.Multiply(LightsManager.HDRIntensity), 0);
                 }
+            }
+
+            // Handle from not Off event
+            else if (Settings.Instance.EmulateChromaLite && nextEvent.CustomData != null && nextEvent.CustomData["_color"] != null) {
+                Color newColor = nextEvent.CustomData["_color"];
+                light.UpdateTargetAlpha(mainColor.a * nextEvent.FloatValue, duration);
+                light.UpdateTargetColor(newColor.Multiply(LightsManager.HDRIntensity), duration);
             }
             else if (MapEvent.IsBlueEventFromValue(e.Value) == MapEvent.IsBlueEventFromValue(nextEvent.Value))
             {
