@@ -139,7 +139,8 @@ public class LightsManager : MonoBehaviour
         else
         {
             light.UpdateTargetColor(a * HDRIntensity, 0);
-            light.UpdateTargetAlpha(a.a);
+            // I don't expect alpha to be different for vanilla colour overrides so this is commented out for now
+            // light.UpdateTargetAlpha(a.a);
         }
     }
 
