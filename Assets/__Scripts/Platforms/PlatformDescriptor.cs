@@ -365,11 +365,13 @@ public class PlatformDescriptor : MonoBehaviour
                     light.UpdateTargetAlpha(color.a * floatValue, 0);
                     light.UpdateTargetColor(color.Multiply(LightsManager.HDRFlashIntensity), 0);
                     light.UpdateTargetColor(color.Multiply(LightsManager.HDRIntensity), LightsManager.FlashTime);
+                    light.UpdateEasing("easeOutCubic");
                     break;
                 case MapEvent.LightValueBlueFade:
                 case MapEvent.LightValueRedFade:
                     light.UpdateTargetAlpha(color.a * floatValue, 0);
                     light.UpdateTargetColor(color.Multiply(LightsManager.HDRFlashIntensity), 0);
+                    light.UpdateEasing("easeOutExpo");
                     if (light.CanBeTurnedOff)
                     {
                         light.UpdateTargetAlpha(0, LightsManager.FadeTime);
@@ -432,6 +434,14 @@ public class PlatformDescriptor : MonoBehaviour
                 light.UpdateTargetAlpha(invertedColor.a * nextEvent.FloatValue, duration);
                 light.UpdateTargetColor(invertedColor.Multiply(LightsManager.HDRIntensity), duration);
             }
+
+            if (Settings.Instance.EmulateChromaLite && nextEvent.CustomData != null && nextEvent.CustomData["_easing"] != null) {
+                light.UpdateEasing(nextEvent.CustomData["_easing"]);
+            }
+        }
+        else
+        {
+            light.UpdateEasing("easeLinear");
         }
     }
 
