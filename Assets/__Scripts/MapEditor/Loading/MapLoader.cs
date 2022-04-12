@@ -119,6 +119,17 @@ public class MapLoader : MonoBehaviour
             events.AllRotationEvents = objects.Cast<MapEvent>().Where(x => x.IsRotationEvent).ToList();
             events.AllBoostEvents = objects.Cast<MapEvent>().Where(x => x.Type == MapEvent.EventTypeBoostLights)
                 .ToList();
+
+            var AllLightEvents = objects.Cast<MapEvent>().Where(x => !x.IsUtilityEvent).ToList();
+            events.EventsSplitByType = new Dictionary<int, List<MapEvent>>();
+            foreach (MapEvent e in AllLightEvents)
+            {
+                List<MapEvent> eventTypeList = events.EventsSplitByType.TryGetValue(e.Type, out eventTypeList)
+                    ? eventTypeList
+                    : new List<MapEvent>();
+                eventTypeList.Add(e);
+                events.EventsSplitByType[e.Type] = eventTypeList;
+            }
         }
 
         collection.RefreshPool(true);

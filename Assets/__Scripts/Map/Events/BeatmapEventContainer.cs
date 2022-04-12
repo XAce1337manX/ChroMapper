@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -153,7 +154,7 @@ public class BeatmapEventContainer : BeatmapObjectContainer
         return Mathf.Clamp(height, 0.1f, 1.5f);
     }
 
-    public void UpdateGradientRendering()
+    public void UpdateGradientRendering(BeatmapEventContainer e = null, EventAppearanceSO eaSO = null, bool boost = false)
     {
         if (EventData.LightGradient != null && !EventData.IsUtilityEvent)
         {
@@ -165,6 +166,33 @@ public class BeatmapEventContainer : BeatmapObjectContainer
 
             eventGradientController.SetVisible(true);
             eventGradientController.UpdateGradientData(EventData.LightGradient);
+        }
+        else if (e != null && e.EventsContainer != null && e.EventsContainer.EventsSplitByType != null)
+        {
+            List<MapEvent> eventTypeList;
+            if (!e.EventsContainer.EventsSplitByType.TryGetValue(e.EventData.Type, out eventTypeList))
+            {
+                eventGradientController.SetVisible(false);
+                return;
+            }
+
+            MapEvent nextEvent = eventTypeList.FirstOrDefault(x => x.Time > e.EventData.Time);
+            if (nextEvent == null)
+            {
+                eventGradientController.SetVisible(false);
+                return;
+            }
+
+            if (nextEvent.Value == MapEvent.LightValueBlueTransition ||
+                nextEvent.Value == MapEvent.LightValueRedTransition) 
+            {
+               eventGradientController.SetVisible(true);
+               eventGradientController.UpdateGradientData(e.EventData, nextEvent, eaSO, boost);
+            }
+            else
+            {
+                eventGradientController.SetVisible(false);
+            }
         }
         else
         {

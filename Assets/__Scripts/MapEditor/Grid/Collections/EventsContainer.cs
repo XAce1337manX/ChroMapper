@@ -28,6 +28,8 @@ public class EventsContainer : BeatmapObjectContainerCollection, CMInput.IEventG
     public List<MapEvent> AllRotationEvents = new List<MapEvent>();
     public List<MapEvent> AllBoostEvents = new List<MapEvent>();
 
+    public Dictionary<int, List<MapEvent>> EventsSplitByType = new Dictionary<int, List<MapEvent>>();
+
     internal PlatformDescriptor platformDescriptor;
     private PropMode propagationEditing = PropMode.Off;
 
@@ -161,9 +163,14 @@ public class EventsContainer : BeatmapObjectContainerCollection, CMInput.IEventG
                 AllRotationEvents.Remove(e);
                 tracksManager.RefreshTracks();
             }
-            else if (e.Type == MapEvent.EventTypeBoostLights)
+            else if (e.Type == MapEvent.EventTypeBoostLights) AllBoostEvents.Remove(e);
+            else if (!e.IsUtilityEvent)
             {
-                AllBoostEvents.Remove(e);
+                List<MapEvent> eventTypeList = EventsSplitByType.TryGetValue(e.Type, out eventTypeList)
+                    ? eventTypeList
+                    : new List<MapEvent>();
+                eventTypeList.Remove(e);
+                EventsSplitByType[e.Type] = eventTypeList;
             }
         }
 
@@ -177,6 +184,15 @@ public class EventsContainer : BeatmapObjectContainerCollection, CMInput.IEventG
             if (e.IsRotationEvent)
                 AllRotationEvents.Add(e);
             else if (e.Type == MapEvent.EventTypeBoostLights) AllBoostEvents.Add(e);
+            else if (!e.IsUtilityEvent)
+            {
+                List<MapEvent> eventTypeList = EventsSplitByType.TryGetValue(e.Type, out eventTypeList)
+                    ? eventTypeList
+                    : new List<MapEvent>();
+                eventTypeList.Add(e);
+                eventTypeList.Sort((x,y) => x.Time.CompareTo(y.Time));
+                EventsSplitByType[e.Type] = eventTypeList;
+            }
         }
 
         countersPlus.UpdateStatistic(CountersPlusStatistic.Events);

@@ -1,3 +1,5 @@
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -125,10 +127,12 @@ public class EventAppearanceSO : ScriptableObject
                 e.ChangeColor(offColor, false);
                 e.ChangeBaseColor(offColor, false);
                 e.UpdateOffset(Vector3.zero, false);
+                ChangeTransitionColor(e, boost);
                 break;
             case MapEvent.LightValueBlueON:
                 e.UpdateOffset(Vector3.zero, false);
                 e.ChangeBaseColor(color, false);
+                ChangeTransitionColor(e, boost);
                 break;
             case MapEvent.LightValueBlueFlash:
                 e.UpdateOffset(e.FlashShaderOffset, false);
@@ -140,10 +144,12 @@ public class EventAppearanceSO : ScriptableObject
                 e.EventModel = EventModelType.Block;
                 e.UpdateOffset(e.TransitionShaderOffset, false);
                 e.ChangeBaseColor(offColor, false);
+                ChangeTransitionColor(e, boost);
                 break;
             case MapEvent.LightValueRedON:
                 e.UpdateOffset(Vector3.zero, false);
                 e.ChangeBaseColor(color, false);
+                ChangeTransitionColor(e, boost);
                 break;
             case MapEvent.LightValueRedFlash:
                 e.UpdateOffset(e.FlashShaderOffset, false);
@@ -155,14 +161,30 @@ public class EventAppearanceSO : ScriptableObject
                 e.EventModel = EventModelType.Block;
                 e.UpdateOffset(e.TransitionShaderOffset, false);
                 e.ChangeBaseColor(offColor, false);
+                ChangeTransitionColor(e, boost);
                 break;
         }
 
         e.ChangeFadeSize(e.DefaultFadeSize, false);
 
-        if (Settings.Instance.VisualizeChromaGradients) e.UpdateGradientRendering();
+        if (Settings.Instance.VisualizeChromaGradients) e.UpdateGradientRendering(e, this, boost);
 
         e.UpdateMaterials();
+    }
+
+    private void ChangeTransitionColor(BeatmapEventContainer e, bool boost) {
+        if (e.EventsContainer == null || e.EventsContainer.EventsSplitByType == null) return;
+        
+        List<MapEvent> eventTypeList;
+        if (!e.EventsContainer.EventsSplitByType.TryGetValue(e.EventData.Type, out eventTypeList)) return;
+
+        MapEvent nextEvent = eventTypeList.FirstOrDefault(x => x.Time > e.EventData.Time);
+        if (nextEvent == null) return;
+
+        if (nextEvent.Value == MapEvent.LightValueBlueTransition)
+            e.ChangeBaseColor(boost ? BlueBoostColor : BlueColor);
+        else if (nextEvent.Value == MapEvent.LightValueRedTransition)
+            e.ChangeBaseColor(boost ? RedBoostColor : RedColor);
     }
 }
 
