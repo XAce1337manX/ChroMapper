@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class EventGradientController : MonoBehaviour
 {
@@ -23,6 +23,11 @@ public class EventGradientController : MonoBehaviour
         {
             startColor = new Color(0,0,0,0);
         }
+        else if (Settings.Instance.EmulateChromaLite && currentEvent.CustomData != null && currentEvent.CustomData["_color"] != null)
+        {
+            startColor = currentEvent.CustomData["_color"];
+            startColor.a *= currentEvent.FloatValue;
+        }
         else if (MapEvent.IsBlueEventFromValue(currentEvent.Value))
         {
             startColor = boost ? eaSO.BlueBoostColor : eaSO.BlueColor;
@@ -34,7 +39,11 @@ public class EventGradientController : MonoBehaviour
             startColor.a = currentEvent.FloatValue;
         }
 
-        if (MapEvent.IsBlueEventFromValue(nextEvent.Value))
+        if (Settings.Instance.EmulateChromaLite && nextEvent.CustomData != null && nextEvent.CustomData["_color"] != null) {
+            endColor = nextEvent.CustomData["_color"];
+            endColor.a *= nextEvent.FloatValue;
+        }
+        else if (MapEvent.IsBlueEventFromValue(nextEvent.Value))
         {
             endColor = boost ? eaSO.BlueBoostColor : eaSO.BlueColor;
             endColor.a = nextEvent.FloatValue;

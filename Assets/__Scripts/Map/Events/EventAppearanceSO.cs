@@ -180,7 +180,9 @@ public class EventAppearanceSO : ScriptableObject
         e.EventData.nextEvent = nextEvent;
         if (nextEvent == null) return;
 
-        if (nextEvent.Value == MapEvent.LightValueBlueTransition)
+        if (Settings.Instance.EmulateChromaLite && nextEvent.CustomData != null && nextEvent.CustomData["_color"] != null)
+            e.ChangeBaseColor(nextEvent.CustomData["_color"]);
+        else if (nextEvent.Value == MapEvent.LightValueBlueTransition)
             e.ChangeBaseColor(boost ? BlueBoostColor : BlueColor);
         else if (nextEvent.Value == MapEvent.LightValueRedTransition)
             e.ChangeBaseColor(boost ? RedBoostColor : RedColor);
