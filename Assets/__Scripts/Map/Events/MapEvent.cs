@@ -110,6 +110,8 @@ public class MapEvent : BeatmapObject
                                                            value == LightValueBlueFade ||
                                                            value == LightValueBlueTransition;
 
+    public MapEvent nextEvent = null;
+
     public int? GetRotationDegreeFromValue()
     {
         //Mapping Extensions precision rotation from 1000 to 1720: 1000 = -360 degrees, 1360 = 0 degrees, 1720 = 360 degrees

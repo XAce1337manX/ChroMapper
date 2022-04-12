@@ -179,6 +179,7 @@ public class EventAppearanceSO : ScriptableObject
         if (!e.EventsContainer.EventsSplitByType.TryGetValue(e.EventData.Type, out eventTypeList)) return;
 
         MapEvent nextEvent = eventTypeList.FirstOrDefault(x => x.Time > e.EventData.Time);
+        e.EventData.nextEvent = nextEvent;
         if (nextEvent == null) return;
 
         if (nextEvent.Value == MapEvent.LightValueBlueTransition)

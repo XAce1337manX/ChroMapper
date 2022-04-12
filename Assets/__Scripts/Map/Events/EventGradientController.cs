@@ -53,6 +53,7 @@ public class EventGradientController : MonoBehaviour
         spriteRenderer.sprite = sprite;
 
         UpdateDuration(nextEvent.Time - currentEvent.Time);
+        currentEvent.nextEvent = nextEvent;
     }
 
     public void UpdateDuration(float duration) => transform.localScale =

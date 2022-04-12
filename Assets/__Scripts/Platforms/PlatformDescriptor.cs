@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -297,12 +297,12 @@ public class PlatformDescriptor : MonoBehaviour
         if (value <= 4)
         {
             mainColor = ColorBoost ? Colors.BlueBoostColor : Colors.BlueColor;
-            invertedColor = Colors.RedColor;
+            invertedColor = ColorBoost ? Colors.RedBoostColor : Colors.RedColor;
         }
         else if (value <= 8)
         {
             mainColor = ColorBoost ? Colors.RedBoostColor : Colors.RedColor;
-            invertedColor = Colors.BlueColor;
+            invertedColor = ColorBoost ? Colors.BlueBoostColor : Colors.BlueColor;
         }
 
         //Check if it is a PogU new Chroma event
@@ -344,32 +344,31 @@ public class PlatformDescriptor : MonoBehaviour
         {
             var color = light.UseInvertedPlatformColors ? invertedColor : mainColor;
             var floatValue = e.FloatValue;
+            light.UpdateMultiplyAlpha();
 
             switch (value)
             {
                 case MapEvent.LightValueOff:
                     light.UpdateTargetAlpha(0, 0);
-                    light.UpdateMultiplyAlpha();
+                    HandleTransitionEvent(e, light, mainColor, invertedColor);
                     break;
                 case MapEvent.LightValueBlueTransition:
                 case MapEvent.LightValueRedTransition:
                 case MapEvent.LightValueBlueON:
                 case MapEvent.LightValueRedON:
-                    light.UpdateMultiplyAlpha(color.a * floatValue);
+                    light.UpdateTargetAlpha(color.a * floatValue, 0);
                     light.UpdateTargetColor(color.Multiply(LightsManager.HDRIntensity), 0);
-                    light.UpdateTargetAlpha(1, 0);
+                    HandleTransitionEvent(e, light, mainColor, invertedColor);
                     break;
                 case MapEvent.LightValueBlueFlash:
                 case MapEvent.LightValueRedFlash:
-                    light.UpdateTargetAlpha(1, 0);
-                    light.UpdateMultiplyAlpha(color.a * floatValue);
+                    light.UpdateTargetAlpha(color.a * floatValue, 0);
                     light.UpdateTargetColor(color.Multiply(LightsManager.HDRFlashIntensity), 0);
                     light.UpdateTargetColor(color.Multiply(LightsManager.HDRIntensity), LightsManager.FlashTime);
                     break;
                 case MapEvent.LightValueBlueFade:
                 case MapEvent.LightValueRedFade:
-                    light.UpdateTargetAlpha(1, 0);
-                    light.UpdateMultiplyAlpha(color.a * floatValue);
+                    light.UpdateTargetAlpha(color.a * floatValue, 0);
                     light.UpdateTargetColor(color.Multiply(LightsManager.HDRFlashIntensity), 0);
                     if (light.CanBeTurnedOff)
                     {
@@ -386,6 +385,40 @@ public class PlatformDescriptor : MonoBehaviour
         }
 
         group.SetValue(value);
+    }
+
+    private void HandleTransitionEvent(MapEvent e, LightingEvent light, Color mainColor, Color invertedColor)
+    {
+        MapEvent nextEvent = e.nextEvent;
+        if (nextEvent != null && (nextEvent.Value == MapEvent.LightValueBlueTransition || nextEvent.Value == MapEvent.LightValueRedTransition))
+        {
+            float duration = (nextEvent.Time - e.Time) / (BeatSaberSongContainer.Instance.Song.BeatsPerMinute / 60);
+            float nextFloat = nextEvent.FloatValue;
+
+            if (e.Value == MapEvent.LightValueOff)
+            {
+                if (MapEvent.IsBlueEventFromValue(nextEvent.Value))
+                {
+                    light.UpdateTargetAlpha(mainColor.a * nextEvent.FloatValue, duration);
+                    light.UpdateTargetColor(mainColor.Multiply(LightsManager.HDRIntensity), 0);
+                }
+                else
+                {
+                    light.UpdateTargetAlpha(invertedColor.a * nextEvent.FloatValue, duration);
+                    light.UpdateTargetColor(invertedColor.Multiply(LightsManager.HDRIntensity), 0);
+                }
+            }
+            else if (MapEvent.IsBlueEventFromValue(e.Value) == MapEvent.IsBlueEventFromValue(nextEvent.Value))
+            {
+                light.UpdateTargetAlpha(mainColor.a * nextEvent.FloatValue, duration);
+                light.UpdateTargetColor(mainColor.Multiply(LightsManager.HDRIntensity), duration);
+            }
+            else
+            {
+                light.UpdateTargetAlpha(invertedColor.a * nextEvent.FloatValue, duration);
+                light.UpdateTargetColor(invertedColor.Multiply(LightsManager.HDRIntensity), duration);
+            }
+        }
     }
 
     private IEnumerator GradientRoutine(MapEvent gradientEvent, LightsManager group)
