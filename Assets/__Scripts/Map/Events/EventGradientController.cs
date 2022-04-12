@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EventGradientController : MonoBehaviour
 {
@@ -53,8 +53,13 @@ public class EventGradientController : MonoBehaviour
             endColor = boost ? eaSO.RedBoostColor : eaSO.RedColor;
             endColor.a = nextEvent.FloatValue;
         }
+
+        string easingName = null;
+        if (Settings.Instance.EmulateChromaLite && nextEvent.CustomData != null && nextEvent.CustomData["_easing"] != null) {
+            easingName = nextEvent.CustomData["_easing"];
+        }
         
-        var texture = Create(new[] { startColor, endColor });
+        var texture = Create(new[] { startColor, endColor }, easingName);
         currentTex = texture;
 
         var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one / 2f, size);
@@ -78,7 +83,7 @@ public class EventGradientController : MonoBehaviour
         var startColor = gradient.StartColor;
         var endColor = gradient.EndColor;
 
-        var texture = Create(new[] { startColor, endColor }, gradient);
+        var texture = Create(new[] { startColor, endColor }, gradient.EasingType);
         currentTex = texture;
 
         var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one / 2f, size);
@@ -86,7 +91,7 @@ public class EventGradientController : MonoBehaviour
         spriteRenderer.sprite = sprite;
     }
 
-    private static Texture2D Create(Color[] colors, MapEvent.ChromaGradient chromaGradient = null,
+    private static Texture2D Create(Color[] colors, string easingName = null,
         TextureWrapMode textureWrapMode = TextureWrapMode.Clamp, FilterMode filterMode = FilterMode.Point,
         bool isLinear = false, bool hasMipMap = false)
     {
@@ -129,10 +134,10 @@ public class EventGradientController : MonoBehaviour
         };
 
         System.Func<float, float> easing;
-        if (chromaGradient == null)
+        if (easingName == null)
             easing = Easing.ByName["easeLinear"];
         else
-            easing = Easing.ByName[chromaGradient.EasingType];
+            easing = Easing.ByName[easingName];
 
         // draw texture
         for (var i = 0; i < size; i++) outputTex.SetPixel(i, 0, gradient.Evaluate(easing((float)i / size)));
