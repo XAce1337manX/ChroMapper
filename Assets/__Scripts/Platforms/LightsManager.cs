@@ -119,7 +119,7 @@ public class LightsManager : MonoBehaviour
         // Off
         if (previousValue == 0) return;
 
-        if (previousValue <= 3) a = b;
+        if (previousValue <= 4) a = b;
 
         foreach (var light in ControllingLights)
         {

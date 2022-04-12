@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "EventAppearanceSO", menuName = "Map/Appearance/Event Appearance SO")]
@@ -105,11 +105,11 @@ public class EventAppearanceSO : ScriptableObject
             color = ColourManager.ColourFromInt(e.EventData.Value);
             e.UpdateAlpha(final ? 0.9f : 0.6f, false);
         }
-        else if (e.EventData.Value <= 3)
+        else if (e.EventData.Value <= 4)
         {
             color = boost ? BlueBoostColor : BlueColor;
         }
-        else if (e.EventData.Value <= 7 && e.EventData.Value >= 5)
+        else if (e.EventData.Value <= 8)
         {
             color = boost ? RedBoostColor : RedColor;
         }
@@ -136,6 +136,11 @@ public class EventAppearanceSO : ScriptableObject
             case MapEvent.LightValueBlueFade:
                 e.UpdateOffset(e.FadeShaderOffset, false);
                 break;
+            case MapEvent.LightValueBlueTransition:
+                e.EventModel = EventModelType.Block;
+                e.UpdateOffset(e.TransitionShaderOffset, false);
+                e.ChangeBaseColor(offColor, false);
+                break;
             case MapEvent.LightValueRedON:
                 e.UpdateOffset(Vector3.zero, false);
                 e.ChangeBaseColor(color, false);
@@ -145,6 +150,11 @@ public class EventAppearanceSO : ScriptableObject
                 break;
             case MapEvent.LightValueRedFade:
                 e.UpdateOffset(e.FadeShaderOffset, false);
+                break;
+            case MapEvent.LightValueRedTransition:
+                e.EventModel = EventModelType.Block;
+                e.UpdateOffset(e.TransitionShaderOffset, false);
+                e.ChangeBaseColor(offColor, false);
                 break;
         }
 

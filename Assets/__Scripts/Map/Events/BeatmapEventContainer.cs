@@ -37,6 +37,7 @@ public class BeatmapEventContainer : BeatmapObjectContainer
 
     public Vector3 FlashShaderOffset => eventModels[eventModel].GetComponent<MaterialParameters>().FlashShaderOffset;
     public Vector3 FadeShaderOffset => eventModels[eventModel].GetComponent<MaterialParameters>().FadeShaderOffset;
+    public Vector3 TransitionShaderOffset => eventModels[eventModel].GetComponent<MaterialParameters>().TransitionShaderOffset;
     public float DefaultFadeSize => eventModels[eventModel].GetComponent<MaterialParameters>().DefaultFadeSize;
     public float BoostEventFadeSize => eventModels[eventModel].GetComponent<MaterialParameters>().BoostEventFadeSize;
 

@@ -72,7 +72,7 @@ public class BeatmapEventInputController : BeatmapInputController<BeatmapEventCo
         }
         else
         {
-            if (e.EventData.Value > 4 && e.EventData.Value < 8) e.EventData.Value -= 4;
+            if (e.EventData.Value > 4 && e.EventData.Value <= 8) e.EventData.Value -= 4;
             else if (e.EventData.Value > 0 && e.EventData.Value <= 4) e.EventData.Value += 4;
         }
 
@@ -88,15 +88,12 @@ public class BeatmapEventInputController : BeatmapInputController<BeatmapEventCo
         var original = BeatmapObject.GenerateCopy(e.ObjectData);
         e.EventData.Value += modifier;
 
-        if (e.EventData.Value == 4 && !e.EventData.IsUtilityEvent)
-            e.EventData.Value += modifier;
-
         if (e.EventData.Value < 0) e.EventData.Value = 0;
 
         if (!e.EventData.IsLaserSpeedEvent)
         {
-            if (e.EventData.Value > 7)
-                e.EventData.Value = 7;
+            if (e.EventData.Value > 8)
+                e.EventData.Value = 8;
         }
 
         if (e.EventData.IsRotationEvent)

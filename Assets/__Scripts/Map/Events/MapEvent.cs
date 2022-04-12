@@ -39,10 +39,12 @@ public class MapEvent : BeatmapObject
     public const int LightValueBlueON = 1;
     public const int LightValueBlueFlash = 2;
     public const int LightValueBlueFade = 3;
+    public const int LightValueBlueTransition = 4;
 
     public const int LightValueRedON = 5;
     public const int LightValueRedFlash = 6;
     public const int LightValueRedFade = 7;
+    public const int LightValueRedTransition = 8;
 
     public static readonly int[] LightValueToRotationDegrees = { -60, -45, -30, -15, 15, 30, 45, 60 };
     public int PropId = -1;
@@ -91,6 +93,7 @@ public class MapEvent : BeatmapObject
                                   Type == EventTypeBoostLights || IsInterscopeEvent;
 
     public bool IsInterscopeEvent => Type == EventTypeCustomEvent1 || Type == EventTypeCustomEvent2;
+    public bool IsBillieEvent => Type == EventTypeCustomLight4 || Type == EventTypeCustomLight5;
     public bool IsLegacyChromaEvent => Value >= ColourManager.RgbintOffset;
     public bool IsChromaEvent => CustomData?.HasKey("_color") ?? false;
     public bool IsPropogationEvent => PropId > -1; //_customData["_lightID"].IsArray
@@ -104,7 +107,8 @@ public class MapEvent : BeatmapObject
 
     public static bool IsBlueEventFromValue(int value) => value == LightValueBlueON ||
                                                            value == LightValueBlueFlash ||
-                                                           value == LightValueBlueFade;
+                                                           value == LightValueBlueFade ||
+                                                           value == LightValueBlueTransition;
 
     public int? GetRotationDegreeFromValue()
     {

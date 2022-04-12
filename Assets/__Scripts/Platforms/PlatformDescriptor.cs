@@ -294,12 +294,12 @@ public class PlatformDescriptor : MonoBehaviour
         }
 
         //Set initial light values
-        if (value <= 3)
+        if (value <= 4)
         {
             mainColor = ColorBoost ? Colors.BlueBoostColor : Colors.BlueColor;
             invertedColor = Colors.RedColor;
         }
-        else if (value <= 7)
+        else if (value <= 8)
         {
             mainColor = ColorBoost ? Colors.RedBoostColor : Colors.RedColor;
             invertedColor = Colors.BlueColor;
@@ -351,6 +351,8 @@ public class PlatformDescriptor : MonoBehaviour
                     light.UpdateTargetAlpha(0, 0);
                     light.UpdateMultiplyAlpha();
                     break;
+                case MapEvent.LightValueBlueTransition:
+                case MapEvent.LightValueRedTransition:
                 case MapEvent.LightValueBlueON:
                 case MapEvent.LightValueRedON:
                     light.UpdateMultiplyAlpha(color.a * floatValue);
