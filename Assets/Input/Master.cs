@@ -1444,6 +1444,14 @@ public class @CMInput : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
+                    ""name"": ""Type Transition"",
+                    ""type"": ""Button"",
+                    ""id"": ""e1d78d12-e5fc-4306-92b1-8fb6fc647464"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press""
+                },
+                {
                     ""name"": ""Toggle Precision Rotation"",
                     ""type"": ""Button"",
                     ""id"": ""b8d7a87e-0bba-4071-9b9c-2591b84ff365"",
@@ -1524,6 +1532,17 @@ public class @CMInput : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""ChroMapper Default"",
                     ""action"": ""Swap Cursor Interval"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9f60ec0d-9e1b-43b5-8763-1c7c633ecd75"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Type Transition"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -4207,6 +4226,7 @@ public class @CMInput : IInputActionCollection, IDisposable
         m_EventUI_TypeFlash = m_EventUI.FindAction("Type Flash", throwIfNotFound: true);
         m_EventUI_TypeOff = m_EventUI.FindAction("Type Off", throwIfNotFound: true);
         m_EventUI_TypeFade = m_EventUI.FindAction("Type Fade", throwIfNotFound: true);
+        m_EventUI_TypeTransition = m_EventUI.FindAction("Type Transition", throwIfNotFound: true);
         m_EventUI_TogglePrecisionRotation = m_EventUI.FindAction("Toggle Precision Rotation", throwIfNotFound: true);
         m_EventUI_SwapCursorInterval = m_EventUI.FindAction("Swap Cursor Interval", throwIfNotFound: true);
         // Saving
@@ -5006,6 +5026,7 @@ public class @CMInput : IInputActionCollection, IDisposable
     private readonly InputAction m_EventUI_TypeFlash;
     private readonly InputAction m_EventUI_TypeOff;
     private readonly InputAction m_EventUI_TypeFade;
+    private readonly InputAction m_EventUI_TypeTransition;
     private readonly InputAction m_EventUI_TogglePrecisionRotation;
     private readonly InputAction m_EventUI_SwapCursorInterval;
     public struct EventUIActions
@@ -5016,6 +5037,7 @@ public class @CMInput : IInputActionCollection, IDisposable
         public InputAction @TypeFlash => m_Wrapper.m_EventUI_TypeFlash;
         public InputAction @TypeOff => m_Wrapper.m_EventUI_TypeOff;
         public InputAction @TypeFade => m_Wrapper.m_EventUI_TypeFade;
+        public InputAction @TypeTransition => m_Wrapper.m_EventUI_TypeTransition;
         public InputAction @TogglePrecisionRotation => m_Wrapper.m_EventUI_TogglePrecisionRotation;
         public InputAction @SwapCursorInterval => m_Wrapper.m_EventUI_SwapCursorInterval;
         public InputActionMap Get() { return m_Wrapper.m_EventUI; }
@@ -5039,6 +5061,9 @@ public class @CMInput : IInputActionCollection, IDisposable
                 @TypeFade.started -= m_Wrapper.m_EventUIActionsCallbackInterface.OnTypeFade;
                 @TypeFade.performed -= m_Wrapper.m_EventUIActionsCallbackInterface.OnTypeFade;
                 @TypeFade.canceled -= m_Wrapper.m_EventUIActionsCallbackInterface.OnTypeFade;
+                @TypeTransition.started -= m_Wrapper.m_EventUIActionsCallbackInterface.OnTypeTransition;
+                @TypeTransition.performed -= m_Wrapper.m_EventUIActionsCallbackInterface.OnTypeTransition;
+                @TypeTransition.canceled -= m_Wrapper.m_EventUIActionsCallbackInterface.OnTypeTransition;
                 @TogglePrecisionRotation.started -= m_Wrapper.m_EventUIActionsCallbackInterface.OnTogglePrecisionRotation;
                 @TogglePrecisionRotation.performed -= m_Wrapper.m_EventUIActionsCallbackInterface.OnTogglePrecisionRotation;
                 @TogglePrecisionRotation.canceled -= m_Wrapper.m_EventUIActionsCallbackInterface.OnTogglePrecisionRotation;
@@ -5061,6 +5086,9 @@ public class @CMInput : IInputActionCollection, IDisposable
                 @TypeFade.started += instance.OnTypeFade;
                 @TypeFade.performed += instance.OnTypeFade;
                 @TypeFade.canceled += instance.OnTypeFade;
+                @TypeTransition.started += instance.OnTypeTransition;
+                @TypeTransition.performed += instance.OnTypeTransition;
+                @TypeTransition.canceled += instance.OnTypeTransition;
                 @TogglePrecisionRotation.started += instance.OnTogglePrecisionRotation;
                 @TogglePrecisionRotation.performed += instance.OnTogglePrecisionRotation;
                 @TogglePrecisionRotation.canceled += instance.OnTogglePrecisionRotation;
@@ -6635,6 +6663,7 @@ public class @CMInput : IInputActionCollection, IDisposable
         void OnTypeFlash(InputAction.CallbackContext context);
         void OnTypeOff(InputAction.CallbackContext context);
         void OnTypeFade(InputAction.CallbackContext context);
+        void OnTypeTransition(InputAction.CallbackContext context);
         void OnTogglePrecisionRotation(InputAction.CallbackContext context);
         void OnSwapCursorInterval(InputAction.CallbackContext context);
     }

@@ -16,7 +16,10 @@ public class LightingModeController : MonoBehaviour
         Flash,
 
         [PickerChoice("Mapper", "bar.events.fade")]
-        Fade
+        Fade,
+
+        [PickerChoice("Mapper", "bar.events.transition")]
+        Transition
     }
 
     [SerializeField] private EnumPicker lightingPicker;
@@ -76,6 +79,9 @@ public class LightingModeController : MonoBehaviour
                 break;
             case LightingMode.Fade:
                 eventPlacement.UpdateValue(red ? MapEvent.LightValueRedFade : MapEvent.LightValueBlueFade);
+                break;
+            case LightingMode.Transition:
+                eventPlacement.UpdateValue(red ? MapEvent.LightValueRedTransition : MapEvent.LightValueBlueTransition);
                 break;
         }
     }

@@ -47,6 +47,13 @@ public class KeybindUpdateUIController : MonoBehaviour, CMInput.IWorkflowsAction
         lightMode.SetMode(LightingModeController.LightingMode.Fade);
     }
 
+    public void OnTypeTransition(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        placeMode.SetMode(PlacementModeController.PlacementMode.Note);
+        lightMode.SetMode(LightingModeController.LightingMode.Transition);
+    }
+
     public void OnTogglePrecisionRotation(InputAction.CallbackContext context)
     {
         if (!context.performed) return;

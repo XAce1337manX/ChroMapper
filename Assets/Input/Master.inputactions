@@ -1431,6 +1431,14 @@
                     "interactions": ""
                 },
                 {
+                    "name": "Type Transition",
+                    "type": "Button",
+                    "id": "e1d78d12-e5fc-4306-92b1-8fb6fc647464",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press"
+                },
+                {
                     "name": "Toggle Precision Rotation",
                     "type": "Button",
                     "id": "b8d7a87e-0bba-4071-9b9c-2591b84ff365",
@@ -1511,6 +1519,17 @@
                     "processors": "",
                     "groups": "ChroMapper Default",
                     "action": "Swap Cursor Interval",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9f60ec0d-9e1b-43b5-8763-1c7c633ecd75",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Type Transition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
