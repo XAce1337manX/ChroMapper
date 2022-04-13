@@ -30,6 +30,9 @@ public class EventsContainer : BeatmapObjectContainerCollection, CMInput.IEventG
 
     public Dictionary<int, List<MapEvent>> EventsSplitByType = new Dictionary<int, List<MapEvent>>();
 
+    // Yes lightID string key is scuffed
+    public Dictionary<int, Dictionary<string, List<MapEvent>>> EventsSplitByTypeAndLightID = new Dictionary<int, Dictionary<string, List<MapEvent>>>();
+
     internal PlatformDescriptor platformDescriptor;
     private PropMode propagationEditing = PropMode.Off;
 
@@ -171,6 +174,19 @@ public class EventsContainer : BeatmapObjectContainerCollection, CMInput.IEventG
                     : new List<MapEvent>();
                 eventTypeList.Remove(e);
                 EventsSplitByType[e.Type] = eventTypeList;
+
+                Dictionary<string, List<MapEvent>> eventTypeDict = EventsSplitByTypeAndLightID.TryGetValue(e.Type, out eventTypeDict)
+                    ? eventTypeDict
+                    : new Dictionary<string, List<MapEvent>>();
+                string lightID = (e.CustomData != null && e.CustomData["_lightID"] != null) 
+                    ? string.Join(",", e.LightId)
+                    : "";
+                eventTypeList = eventTypeDict.TryGetValue(lightID, out eventTypeList)
+                    ? eventTypeList
+                    : new List<MapEvent>();
+                eventTypeList.Remove(e);
+                eventTypeDict[lightID] = eventTypeList;
+                EventsSplitByTypeAndLightID[e.Type] = eventTypeDict;
             }
         }
 
@@ -192,6 +208,20 @@ public class EventsContainer : BeatmapObjectContainerCollection, CMInput.IEventG
                 eventTypeList.Add(e);
                 eventTypeList.Sort((x,y) => x.Time.CompareTo(y.Time));
                 EventsSplitByType[e.Type] = eventTypeList;
+
+                Dictionary<string, List<MapEvent>> eventTypeDict = EventsSplitByTypeAndLightID.TryGetValue(e.Type, out eventTypeDict)
+                    ? eventTypeDict
+                    : new Dictionary<string, List<MapEvent>>();
+                string lightID = (e.CustomData != null && e.CustomData["_lightID"] != null) 
+                    ? string.Join(",", e.LightId)
+                    : string.Join(",", new int[] {-1});
+                eventTypeList = eventTypeDict.TryGetValue(lightID, out eventTypeList)
+                    ? eventTypeList
+                    : new List<MapEvent>();
+                eventTypeList.Add(e);
+                eventTypeList.Sort((x,y) => x.Time.CompareTo(y.Time));
+                eventTypeDict[lightID] = eventTypeList;
+                EventsSplitByTypeAndLightID[e.Type] = eventTypeDict;
             }
         }
 

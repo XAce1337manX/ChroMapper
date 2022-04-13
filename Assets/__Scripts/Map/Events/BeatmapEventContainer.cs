@@ -170,8 +170,21 @@ public class BeatmapEventContainer : BeatmapObjectContainer
         else if (e != null && e.EventsContainer != null && e.EventsContainer.EventsSplitByType != null)
         {
             List<MapEvent> eventTypeList;
-            if (!e.EventsContainer.EventsSplitByType.TryGetValue(e.EventData.Type, out eventTypeList))
-            {
+            Dictionary<string, List<MapEvent>> eventTypeDict;
+            
+            if (Settings.Instance.EmulateChromaAdvanced) {
+                if (!e.EventsContainer.EventsSplitByTypeAndLightID.TryGetValue(e.EventData.Type, out eventTypeDict)) {
+                    eventGradientController.SetVisible(false);
+                    return;
+                }
+                string lightID = (e.EventData.CustomData != null && e.EventData.CustomData["_lightID"] != null)
+                    ? string.Join(",", e.EventData.LightId)
+                    : string.Join(",", new int[] {-1});
+                if (!eventTypeDict.TryGetValue(lightID, out eventTypeList)) {
+                    eventGradientController.SetVisible(false);
+                    return;
+                }
+            } else if (!e.EventsContainer.EventsSplitByType.TryGetValue(e.EventData.Type, out eventTypeList)) {
                 eventGradientController.SetVisible(false);
                 return;
             }
