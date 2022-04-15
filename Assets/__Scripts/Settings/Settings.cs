@@ -68,6 +68,12 @@ public class Settings
     public float CameraFOV = 60f;
     public int CameraAA = 0;
     public int RenderScale = 100;
+
+    // Start of Appearance Options
+    public float OneBeatWidth = 0.1f;
+
+    // End of Appearance Options
+
     public bool WaveformWorkflow = true;
     public bool Load_Events = true;
     public bool Load_Notes = true;

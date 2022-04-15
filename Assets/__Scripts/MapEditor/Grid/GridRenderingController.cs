@@ -40,6 +40,9 @@ public class GridRenderingController : MonoBehaviour
         allRenderers.AddRange(preciseBeatSegment);
         Settings.NotifyBySettingName(nameof(Settings.HighContrastGrids), UpdateGridColors);
         Settings.NotifyBySettingName(nameof(Settings.GridTransparency), UpdateGridColors);
+        Settings.NotifyBySettingName(nameof(Settings.OneBeatWidth), UpdateOneBeat);
+
+        UpdateOneBeat(Settings.Instance.OneBeatWidth);
     }
 
     private void OnDestroy()
@@ -47,12 +50,19 @@ public class GridRenderingController : MonoBehaviour
         atsc.GridMeasureSnappingChanged -= GridMeasureSnappingChanged;
         Settings.ClearSettingNotifications(nameof(Settings.HighContrastGrids));
         Settings.ClearSettingNotifications(nameof(Settings.GridTransparency));
+        Settings.ClearSettingNotifications(nameof(Settings.OneBeatWidth));
     }
 
     public void UpdateOffset(float offset)
     {
         Shader.SetGlobalFloat(GridRenderingController.offset, offset);
         if (!atsc.IsPlaying) GridMeasureSnappingChanged(atsc.GridMeasureSnapping);
+    }
+
+    private void UpdateOneBeat(object value)
+    {
+        foreach (var renderer in oneBeat)
+            foreach (var mat in renderer.materials) mat.SetFloat("_GridThickness", (float)value);
     }
 
     private void GridMeasureSnappingChanged(int snapping)

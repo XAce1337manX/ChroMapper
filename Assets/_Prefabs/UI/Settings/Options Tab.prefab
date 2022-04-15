@@ -53,11 +53,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ee6726ee9552f94cb6ea56adb3cfa28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hovering: 0
-  textMeshTabName: {fileID: 342672535199234981}
-  discordPopout: {fileID: 2694022128912952387}
-  discordPopoutCanvas: {fileID: 3944957883035886170}
-  icon: {fileID: 8275532198455673905}
+  Hovering: 0
+  TextMeshTabName: {fileID: 342672535199234981}
+  DiscordPopout: {fileID: 2694022128912952387}
+  DiscordPopoutCanvas: {fileID: 3944957883035886170}
+  Icon: {fileID: 8275532198455673905}
 --- !u!222 &342672534216676799
 CanvasRenderer:
   m_ObjectHideFlags: 0
