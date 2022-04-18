@@ -48,7 +48,7 @@ public class NestedColorPickerComponent : CMUIComponentWithLabel<Color>
         if (nestedDialogBox == null)
         {
             nestedDialogBox = PersistentUI.Instance.CreateNewDialogBox()
-                .DontDestroyOnClose()
+                //.DontDestroyOnClose() // Commented out as creates issue with destroying preview image for some reason?
                 .WithNoTitle();
 
             nestedColorPicker = nestedDialogBox.AddComponent<ColorPickerComponent>()

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -197,6 +197,12 @@ public class Settings
                             var parsedEnumValue = Enum.Parse(field.FieldType, nodeValue);
                             field.SetValue(settings, parsedEnumValue);
                         }
+                        else if (field.FieldType == typeof(Color))
+                        {
+                            Color parsedColorValue;
+                            ColorUtility.TryParseHtmlString(nodeValue, out parsedColorValue);
+                            field.SetValue(settings, parsedColorValue);
+                        }
                         else if (typeof(IJsonSetting).IsAssignableFrom(field.FieldType))
                         {
                             var elementJSON = (IJsonSetting)Activator.CreateInstance(field.FieldType);
@@ -288,6 +294,10 @@ public class Settings
                     }
                 }
                 mainNode[info.Name] = arr;
+            }
+            else if (val is Color colorVal)
+            {
+                mainNode[info.Name] = $"#{ColorUtility.ToHtmlStringRGBA(colorVal)}";
             }
             else if (val is IJsonSetting jsonVal)
             {
