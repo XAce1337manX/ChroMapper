@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -73,6 +73,8 @@ public class Settings
     public float OneBeatWidth = 0.1f;
     public Color OneBeatColor = new Color(1f, 1f, 1f, 0.412f); // 255, 255, 255, 105
 
+    public Color TrackColor = new Color(0.33f, 0.33f, 0.33f, 1f); // Default grey
+
     // End of Appearance Options
 
     public bool WaveformWorkflow = true;
@@ -98,8 +100,8 @@ public class Settings
     public bool HelpfulLoadingMessages = false;
     public bool Reset360DisplayOnCompleteTurn = true;
     public string Language = "en";
-    public bool HighContrastGrids = false;
-    public float GridTransparency = 0f;
+    public bool HighContrastGrids = false; // Removed
+    public float GridTransparency = 0f; // Removed
     public float UIScale = 1;
     public CameraPosition[] SavedPositions = new CameraPosition[8];
     public bool Reminder_UnsupportedEditorOffset = true;

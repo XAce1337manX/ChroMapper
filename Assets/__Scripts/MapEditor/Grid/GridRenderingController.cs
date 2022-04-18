@@ -38,8 +38,7 @@ public class GridRenderingController : MonoBehaviour
         allRenderers.AddRange(smallBeatSegment);
         allRenderers.AddRange(detailedBeatSegment);
         allRenderers.AddRange(preciseBeatSegment);
-        Settings.NotifyBySettingName(nameof(Settings.HighContrastGrids), UpdateGridColors);
-        Settings.NotifyBySettingName(nameof(Settings.GridTransparency), UpdateGridColors);
+        Settings.NotifyBySettingName(nameof(Settings.TrackColor), UpdateGridColors);
         Settings.NotifyBySettingName(nameof(Settings.OneBeatWidth), UpdateOneBeat);
         Settings.NotifyBySettingName(nameof(Settings.OneBeatColor), UpdateOneBeatColor);
 
@@ -50,8 +49,7 @@ public class GridRenderingController : MonoBehaviour
     private void OnDestroy()
     {
         atsc.GridMeasureSnappingChanged -= GridMeasureSnappingChanged;
-        Settings.ClearSettingNotifications(nameof(Settings.HighContrastGrids));
-        Settings.ClearSettingNotifications(nameof(Settings.GridTransparency));
+        Settings.ClearSettingNotifications(nameof(Settings.TrackColor));
         Settings.ClearSettingNotifications(nameof(Settings.OneBeatWidth));
         Settings.ClearSettingNotifications(nameof(Settings.OneBeatColor));
     }
@@ -107,10 +105,8 @@ public class GridRenderingController : MonoBehaviour
     }
 
     private void UpdateGridColors(object _ = null)
-    {
-        var gridAlpha = Settings.Instance.GridTransparency;
-        var newColor = Settings.Instance.HighContrastGrids ? mainColorHighContrast : mainColorDefault;
-        newColor.a = 1f - gridAlpha;
+    {        
+        var newColor = Settings.Instance.TrackColor;
         beatColorPropertyBlock.SetColor(mainColor, newColor);
         foreach (var g in transparentGrids)
         {

@@ -931,6 +931,14 @@ MonoBehaviour:
     m_Key: appearance.onebeatcolor
     m_Metadata:
       m_Items: []
+  - m_Id: 92808901820612608
+    m_Key: appearance.trackcolor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 92808957978148864
+    m_Key: appearance.trackcolor.tooltip
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
