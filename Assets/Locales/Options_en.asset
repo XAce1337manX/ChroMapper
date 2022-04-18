@@ -1075,6 +1075,14 @@ MonoBehaviour:
     m_Localized: Various Appearance Options
     m_Metadata:
       m_Items: []
+  - m_Id: 91624044822200320
+    m_Localized: The color of the beat line
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91624050413207552
+    m_Localized: Main Beat Line Color
+    m_Metadata:
+      m_Items: []
   references:
     version: 1
     00000000:

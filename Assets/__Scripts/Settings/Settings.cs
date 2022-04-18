@@ -71,6 +71,7 @@ public class Settings
 
     // Start of Appearance Options
     public float OneBeatWidth = 0.1f;
+    public Color OneBeatColor = new Color(1f, 1f, 1f, 0.412f); // 255, 255, 255, 105
 
     // End of Appearance Options
 

@@ -41,8 +41,10 @@ public class GridRenderingController : MonoBehaviour
         Settings.NotifyBySettingName(nameof(Settings.HighContrastGrids), UpdateGridColors);
         Settings.NotifyBySettingName(nameof(Settings.GridTransparency), UpdateGridColors);
         Settings.NotifyBySettingName(nameof(Settings.OneBeatWidth), UpdateOneBeat);
+        Settings.NotifyBySettingName(nameof(Settings.OneBeatColor), UpdateOneBeatColor);
 
         UpdateOneBeat(Settings.Instance.OneBeatWidth);
+        UpdateOneBeatColor(Settings.Instance.OneBeatColor);
     }
 
     private void OnDestroy()
@@ -51,6 +53,7 @@ public class GridRenderingController : MonoBehaviour
         Settings.ClearSettingNotifications(nameof(Settings.HighContrastGrids));
         Settings.ClearSettingNotifications(nameof(Settings.GridTransparency));
         Settings.ClearSettingNotifications(nameof(Settings.OneBeatWidth));
+        Settings.ClearSettingNotifications(nameof(Settings.OneBeatColor));
     }
 
     public void UpdateOffset(float offset)
@@ -63,6 +66,12 @@ public class GridRenderingController : MonoBehaviour
     {
         foreach (var renderer in oneBeat)
             foreach (var mat in renderer.materials) mat.SetFloat("_GridThickness", (float)value);
+    }
+
+    private void UpdateOneBeatColor(object value)
+    {
+        foreach (var renderer in oneBeat)
+            foreach (var mat in renderer.materials) mat.SetColor("_GridColour", (Color)value);
     }
 
     private void GridMeasureSnappingChanged(int snapping)

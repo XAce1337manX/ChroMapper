@@ -923,6 +923,14 @@ MonoBehaviour:
     m_Key: appearance.heading
     m_Metadata:
       m_Items: []
+  - m_Id: 91624044822200320
+    m_Key: appearance.onebeatcolor.tooltip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91624050413207552
+    m_Key: appearance.onebeatcolor
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
