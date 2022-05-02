@@ -174,15 +174,15 @@ public class EventAppearanceSO : ScriptableObject
         if (e.EventsContainer == null || e.EventsContainer.EventsSplitByType == null) return;
         
         List<MapEvent> eventTypeList;
-        Dictionary<string, List<MapEvent>> eventTypeDict;
+        Dictionary<int, List<MapEvent>> eventTypeDict;
         
         // Return if there's no nextEvent
         if (Settings.Instance.EmulateChromaAdvanced) {
             if (!e.EventsContainer.EventsSplitByTypeAndLightID.TryGetValue(e.EventData.Type, out eventTypeDict))
                 return;
-            string lightID = (e.EventData.CustomData != null && e.EventData.CustomData["_lightID"] != null) 
-                ? string.Join(",", e.EventData.LightId)
-                : string.Join(",", new int[] {-1});
+            int lightID = (e.EventData.CustomData != null && e.EventData.CustomData["_lightID"] != null) 
+                ? e.EventData.LightId.First()
+                : int.MinValue;
             if (!eventTypeDict.TryGetValue(lightID, out eventTypeList))
                 return;
         } else {

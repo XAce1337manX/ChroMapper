@@ -122,7 +122,7 @@ public class MapLoader : MonoBehaviour
 
             var AllLightEvents = objects.Cast<MapEvent>().Where(x => !x.IsUtilityEvent).ToList();
             events.EventsSplitByType = new Dictionary<int, List<MapEvent>>();
-            events.EventsSplitByTypeAndLightID = new Dictionary<int, Dictionary<string, List<MapEvent>>>();
+            events.EventsSplitByTypeAndLightID = new Dictionary<int, Dictionary<int, List<MapEvent>>>();
             foreach (MapEvent e in AllLightEvents)
             {
                 List<MapEvent> eventTypeList = events.EventsSplitByType.TryGetValue(e.Type, out eventTypeList)
@@ -131,12 +131,12 @@ public class MapLoader : MonoBehaviour
                 eventTypeList.Add(e);
                 events.EventsSplitByType[e.Type] = eventTypeList;
 
-                Dictionary<string, List<MapEvent>> eventTypeDict = events.EventsSplitByTypeAndLightID.TryGetValue(e.Type, out eventTypeDict)
+                Dictionary<int, List<MapEvent>> eventTypeDict = events.EventsSplitByTypeAndLightID.TryGetValue(e.Type, out eventTypeDict)
                     ? eventTypeDict
-                    : new Dictionary<string, List<MapEvent>>();
-                string lightID = (e.CustomData != null && e.CustomData["_lightID"] != null)
-                    ? string.Join(",", e.LightId)
-                    : string.Join(",", new int[] {-1});
+                    : new Dictionary<int, List<MapEvent>>();
+                int lightID = (e.CustomData != null && e.CustomData["_lightID"] != null)
+                    ? e.LightId.First()
+                    : int.MinValue;
                 List<MapEvent> eventTypeIDList = eventTypeDict.TryGetValue(lightID, out eventTypeIDList)
                     ? eventTypeIDList
                     : new List<MapEvent>();
