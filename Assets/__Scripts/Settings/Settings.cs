@@ -251,6 +251,15 @@ public class Settings
 
     private void UpdateOldSettings()  //Put code in here to transfer any settings that are fundamentally changed and require conversion from an old setting to a new setting
     {
+        if (GridTransparency != 0) {
+            TrackColor.a = GridTransparency;
+            GridTransparency = 0;
+        }
+        if (HighContrastGrids) {
+            TrackColor.r = TrackColor.g = TrackColor.b = 0;
+            HighContrastGrids = false;
+        }
+
         if (PyramidEventModels)
         {
             EventModel = EventModelType.Pyramid;

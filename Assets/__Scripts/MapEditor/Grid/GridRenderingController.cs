@@ -7,8 +7,6 @@ public class GridRenderingController : MonoBehaviour
     private static readonly int offset = Shader.PropertyToID("_Offset");
     private static readonly int gridSpacing = Shader.PropertyToID("_GridSpacing");
     private static readonly int mainColor = Shader.PropertyToID("_Color");
-    private static readonly Color mainColorDefault = new Color(0.33f, 0.33f, 0.33f, 1f);
-    private static readonly Color mainColorHighContrast = new Color(0f, 0f, 0f, 1f);
 
     private static MaterialPropertyBlock oneBeatPropertyBlock;
     private static MaterialPropertyBlock smallBeatPropertyBlock;
