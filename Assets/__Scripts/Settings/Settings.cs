@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -72,6 +72,7 @@ public class Settings
     // Start of Appearance Options
     public float OneBeatWidth = 0.1f;
     public Color OneBeatColor = new Color(1f, 1f, 1f, 0.412f); // 255, 255, 255, 105
+    public float TrackZScale = 32f;
 
     public Color TrackColor = new Color(0.33f, 0.33f, 0.33f, 1f); // Default grey
 

@@ -21,6 +21,7 @@ public class GridRenderingController : MonoBehaviour
     [SerializeField] private Renderer[] opaqueGrids;
     [SerializeField] private Renderer[] transparentGrids;
     [SerializeField] private Renderer[] gridInterface;
+    [SerializeField] private Transform[] gridFrontTransforms;
 
     private readonly List<Renderer> allRenderers = new List<Renderer>();
 
@@ -41,6 +42,7 @@ public class GridRenderingController : MonoBehaviour
         Settings.NotifyBySettingName(nameof(Settings.OneBeatWidth), UpdateOneBeat);
         Settings.NotifyBySettingName(nameof(Settings.OneBeatColor), UpdateOneBeatColor);
         Settings.NotifyBySettingName(nameof(Settings.GridInterfaceColor), UpdateGridInterfaceColor);
+        Settings.NotifyBySettingName(nameof(Settings.TrackZScale), UpdateTrackZScale);
 
         UpdateOneBeat(Settings.Instance.OneBeatWidth);
         UpdateOneBeatColor(Settings.Instance.OneBeatColor);
@@ -53,6 +55,7 @@ public class GridRenderingController : MonoBehaviour
         Settings.ClearSettingNotifications(nameof(Settings.OneBeatWidth));
         Settings.ClearSettingNotifications(nameof(Settings.OneBeatColor));
         Settings.ClearSettingNotifications(nameof(Settings.GridInterfaceColor));
+        Settings.ClearSettingNotifications(nameof(Settings.TrackZScale));
     }
 
     public void UpdateOffset(float offset)
@@ -81,6 +84,14 @@ public class GridRenderingController : MonoBehaviour
                 mat.SetColor("_BASE_COLOR", (Color)value);
                 mat.SetFloat("_OPACITY", ((Color)value).a);
             }
+    }
+
+    private void UpdateTrackZScale(object value) {
+        foreach (var trans in gridFrontTransforms)
+        {
+            var scale = trans.localScale;
+            trans.localScale = new Vector3(scale.x, scale.y, Settings.Instance.TrackZScale);
+        }
     }
 
     private void GridMeasureSnappingChanged(int snapping)

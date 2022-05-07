@@ -947,6 +947,14 @@ MonoBehaviour:
     m_Key: appearance.gridinterfacecolor.tooltip
     m_Metadata:
       m_Items: []
+  - m_Id: 99566501488689152
+    m_Key: appearance.trackzscale
+    m_Metadata:
+      m_Items: []
+  - m_Id: 99566507113250816
+    m_Key: appearance.trackzscale.tooltip
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
