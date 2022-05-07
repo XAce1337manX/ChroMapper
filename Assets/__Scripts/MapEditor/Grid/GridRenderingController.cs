@@ -20,6 +20,7 @@ public class GridRenderingController : MonoBehaviour
     [SerializeField] private Renderer[] preciseBeatSegment;
     [SerializeField] private Renderer[] opaqueGrids;
     [SerializeField] private Renderer[] transparentGrids;
+    [SerializeField] private Renderer[] gridInterface;
 
     private readonly List<Renderer> allRenderers = new List<Renderer>();
 
@@ -39,6 +40,7 @@ public class GridRenderingController : MonoBehaviour
         Settings.NotifyBySettingName(nameof(Settings.TrackColor), UpdateGridColors);
         Settings.NotifyBySettingName(nameof(Settings.OneBeatWidth), UpdateOneBeat);
         Settings.NotifyBySettingName(nameof(Settings.OneBeatColor), UpdateOneBeatColor);
+        Settings.NotifyBySettingName(nameof(Settings.GridInterfaceColor), UpdateGridInterfaceColor);
 
         UpdateOneBeat(Settings.Instance.OneBeatWidth);
         UpdateOneBeatColor(Settings.Instance.OneBeatColor);
@@ -50,6 +52,7 @@ public class GridRenderingController : MonoBehaviour
         Settings.ClearSettingNotifications(nameof(Settings.TrackColor));
         Settings.ClearSettingNotifications(nameof(Settings.OneBeatWidth));
         Settings.ClearSettingNotifications(nameof(Settings.OneBeatColor));
+        Settings.ClearSettingNotifications(nameof(Settings.GridInterfaceColor));
     }
 
     public void UpdateOffset(float offset)
@@ -68,6 +71,16 @@ public class GridRenderingController : MonoBehaviour
     {
         foreach (var renderer in oneBeat)
             foreach (var mat in renderer.materials) mat.SetColor("_GridColour", (Color)value);
+    }
+
+    private void UpdateGridInterfaceColor(object value) {
+        foreach (var renderer in gridInterface)
+            foreach (var mat in renderer.materials)
+            {
+                Debug.Log($"We got this property maybe: {mat.HasProperty("_BASE_COLOR")}");
+                mat.SetColor("_BASE_COLOR", (Color)value);
+                mat.SetFloat("_OPACITY", ((Color)value).a);
+            }
     }
 
     private void GridMeasureSnappingChanged(int snapping)

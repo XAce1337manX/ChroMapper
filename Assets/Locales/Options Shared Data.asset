@@ -939,6 +939,14 @@ MonoBehaviour:
     m_Key: appearance.trackcolor.tooltip
     m_Metadata:
       m_Items: []
+  - m_Id: 99552382375100416
+    m_Key: appearance.gridinterfacecolor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 99552375962009600
+    m_Key: appearance.gridinterfacecolor.tooltip
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
