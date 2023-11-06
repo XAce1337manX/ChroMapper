@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,7 +60,30 @@ public class SongList : MonoBehaviour
 
         SortTypeChanged?.Invoke(currentSort);
         SetSongLocation(lastVisitedWasWip);
+
+#if UNITY_STANDALONE_WIN
+        WarnIfRunFromDownloadsFolder();
+#endif
     }
+
+#if UNITY_STANDALONE_WIN
+
+    private void WarnIfRunFromDownloadsFolder()
+    {
+        var downloadsFolderId = new Guid("374DE290-123F-4565-9164-39C4925E467B");
+        var downloadsFolderPath = SHGetKnownFolderPath(downloadsFolderId, 0);
+
+        Debug.Log($"Running from: {Application.dataPath}\nDownloads folder: {downloadsFolderPath}");
+        if (Application.dataPath.Contains(downloadsFolderPath))
+        {
+            PersistentUI.Instance.ShowDialogBox("Hey your plugins may break if CM is on Downloads folder", null, PersistentUI.DialogBoxPresetType.Ok);
+        }
+    }
+
+    [DllImport("shell32", CharSet = CharSet.Unicode, ExactSpelling = true, PreserveSig = false)]
+    private static extern string SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, nint hToken = 0);
+
+#endif
 
     public event Action<SongSortType> SortTypeChanged;
 
