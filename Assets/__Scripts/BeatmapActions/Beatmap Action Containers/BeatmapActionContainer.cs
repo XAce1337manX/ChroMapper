@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,7 +17,11 @@ public class BeatmapActionContainer : MonoBehaviour, CMInput.IActionsActions
     [SerializeField] private NodeEditorController nodeEditor;
     [SerializeField] private TracksManager tracksManager;
 
-    private readonly List<BeatmapAction> beatmapActions = new List<BeatmapAction>();
+    private readonly List<BeatmapAction> beatmapActions = new();
+
+    // For managing size of beatmap action history
+    private int localBeatmapActionCount;
+    private bool hasReceivedNetworkBeatmapAction;
 
     private void Start() => instance = this;
 
@@ -38,9 +42,27 @@ public class BeatmapActionContainer : MonoBehaviour, CMInput.IActionsActions
     {
         if (!action.Networked)
         {
-            instance.beatmapActions.RemoveAll(x => !x.Networked && !x.Active);
+            instance.localBeatmapActionCount += 1;
+            
+            var removedCount = instance.beatmapActions.RemoveAll(x => !x.Networked && !x.Active);
+            instance.localBeatmapActionCount -= removedCount;
+
+            // Remove oldest action only when not using United Mapping as action history is used for user trace
+            if (!instance.hasReceivedNetworkBeatmapAction && instance.localBeatmapActionCount > Settings.Instance.LocalBeatmapActionHistoryLimit)
+            {
+                var oldestLocalActionIndex = instance.beatmapActions.FindIndex(x => !x.Networked);
+                instance.beatmapActions.RemoveAt(oldestLocalActionIndex);
+                instance.localBeatmapActionCount -= 1;
+            }
+            
             ActionCreatedEvent?.Invoke(action);
         }
+        else
+        {
+            // Once a network action has been received it's safe to assume it's a United Mapping session
+            instance.hasReceivedNetworkBeatmapAction = true;
+        }
+        
         instance.beatmapActions.Add(action);
         if (perform) instance.DoRedo(action);
         Debug.Log($"Action of type {action.GetType().Name} added. ({action.Comment})");

@@ -19,6 +19,7 @@ public class Settings
         Reminder_SettingsFailed = false,
         Reminder_Loading360Levels = false,
         BeatSaberInstallation = "/root/bs",
+        LocalBeatmapActionHistoryLimit = 8
     };
 #endif
 
@@ -49,6 +50,7 @@ public class Settings
     public bool VSync = true;
     public int MaximumFPS = 9999;
     public bool IncludePathForADB = true;
+    public int LocalBeatmapActionHistoryLimit = 128;
 
     #endregion
 
