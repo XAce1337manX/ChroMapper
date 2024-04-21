@@ -209,5 +209,89 @@ namespace Tests
             Assert.AreEqual(1, notesContainer.MapObjects.Count);
             Assert.AreEqual(2, notesContainer.MapObjects[0].JsonTime);
         }
+
+        [Test]
+        public void ActionHistoryLimit()
+        {
+            // In case someone changes it
+            Assert.AreEqual(8, Settings.TestRunnerSettings.LocalBeatmapActionHistoryLimit);
+            
+            var actionContainer = Object.FindObjectOfType<BeatmapActionContainer>();
+
+            var notesContainer = BeatmapObjectContainerCollection.GetCollectionForType<NoteGridContainer>(ObjectType.Note);
+            var root = notesContainer.transform.root;
+            var notePlacement = root.GetComponentInChildren<NotePlacement>();
+
+            // Place 10 blocks which will exceed test history limit of 8
+            for (var i = 0; i < 10; i++)
+            {
+                PlaceUtils.PlaceNote(notePlacement, new V3ColorNote { JsonTime = i });
+            }
+            Assert.AreEqual(10, notesContainer.MapObjects.Count);
+            
+            // Now spam undo
+            for (var i = 0; i < 10; i++)
+            {
+                 actionContainer.Undo();
+            }
+            
+            // Only 8 of the undo actions should work
+            Assert.AreEqual(2, notesContainer.MapObjects.Count);
+            
+            // Do it again
+            for (var i = 0; i < 10; i++)
+            {
+                PlaceUtils.PlaceNote(notePlacement, new V3ColorNote { JsonTime = i, PosY = 2 });
+            }
+            Assert.AreEqual(12, notesContainer.MapObjects.Count);
+            
+            
+            for (var i = 0; i < 10; i++)
+            {
+                actionContainer.Undo();
+            }
+            Assert.AreEqual(4, notesContainer.MapObjects.Count);
+        }
+
+        [Test]
+        public void InactiveActionsAreDeleted()
+        {
+            var actionContainer = Object.FindObjectOfType<BeatmapActionContainer>();
+
+            var notesContainer = BeatmapObjectContainerCollection.GetCollectionForType<NoteGridContainer>(ObjectType.Note);
+            var root = notesContainer.transform.root;
+            var notePlacement = root.GetComponentInChildren<NotePlacement>();
+
+            for (var i = 0; i < 8; i++)
+            {
+                PlaceUtils.PlaceNote(notePlacement, new V3ColorNote { JsonTime = i });
+            }
+
+            Assert.AreEqual(8, notesContainer.MapObjects.Count);
+
+            // Now spam undo
+            for (var i = 0; i < 8; i++)
+            {
+                actionContainer.Undo();
+            }
+
+            Assert.AreEqual(0, notesContainer.MapObjects.Count);
+
+            // This action should remove inactive actions which should make the next redo do nothing
+            PlaceUtils.PlaceNote(notePlacement, new V3ColorNote { JsonTime = 11 });
+            Assert.AreEqual(1, notesContainer.MapObjects.Count);
+
+            actionContainer.Redo(); // Should do nothing
+            Assert.AreEqual(1, notesContainer.MapObjects.Count);
+
+            actionContainer.Undo();
+            Assert.AreEqual(0, notesContainer.MapObjects.Count);
+
+            actionContainer.Redo();
+            Assert.AreEqual(1, notesContainer.MapObjects.Count);
+
+            actionContainer.Redo(); // Should do nothing
+            Assert.AreEqual(1, notesContainer.MapObjects.Count);
+        }
     }
 }

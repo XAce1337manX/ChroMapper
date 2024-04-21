@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -68,8 +68,11 @@ public class BeatmapActionContainer : MonoBehaviour, CMInput.IActionsActions
         Debug.Log($"Action of type {action.GetType().Name} added. ({action.Comment})");
     }
 
-    public static void RemoveAllActionsOfType<T>() where T : BeatmapAction =>
-        instance.beatmapActions.RemoveAll(x => x is T);
+    public static void RemoveAllActionsOfType<T>() where T : BeatmapAction
+    {
+        var removed = instance.beatmapActions.RemoveAll(x => x is T && !x.Networked);
+        instance.localBeatmapActionCount -= removed;
+    }
 
     public static void Undo(Guid actionGuid)
     {

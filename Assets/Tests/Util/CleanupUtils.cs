@@ -44,9 +44,9 @@ namespace Tests.Util
 
         private static void CleanupType(ObjectType type)
         {
-            var eventsContainer = BeatmapObjectContainerCollection.GetCollectionForType(type);
+            var gridContainer = BeatmapObjectContainerCollection.GetCollectionForType(type);
 
-            foreach (var evt in eventsContainer.LoadedObjects.ToArray()) eventsContainer.DeleteObject(evt);
+            foreach (var obj in gridContainer.LoadedObjects.ToArray()) gridContainer.DeleteObject(obj, triggersAction: false);
         }
     }
 }
