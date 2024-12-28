@@ -331,10 +331,12 @@ namespace Beatmap.Base
                 File.WriteAllText(Path.Combine(songContainer.Info.Directory, bpmOutputFileName),
                     bpmOutputJson.ToString(2));
             }
+            
+            File.WriteAllText(Path.Combine(songContainer.Info.Directory, "maidata.txt"), Maimai.DoTheThing(this));
 
             return true;
         }
-        
+
         private JSONNode GetOfficialBookmarkOutputJson(string characteristic, string difficulty)
         {
             var json = new JSONObject();
