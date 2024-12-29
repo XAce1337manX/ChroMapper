@@ -48,9 +48,12 @@ namespace Beatmap.Base
                     var commaCounter = 0;
                     while (commaCounter < lcm / beatsInMeasure)
                     {
-                        foreach (var thingy in fractions.Where(x => x.Item2.N == commaCounter))
+                        var notesForThisComma = fractions.Where(x => x.Item2.N == commaCounter).ToList();
+                        var index = 0;
+                        foreach (var thingy in notesForThisComma)
                         {
                             var baseNote = thingy.baseNote;
+                            // Note position
                             switch (baseNote.PosX)
                             {
                                 case 0:
@@ -69,6 +72,11 @@ namespace Beatmap.Base
                                     if (baseNote.PosY == 0) stringBuilder.Append("3");
                                     if (baseNote.PosY is 1 or 2) stringBuilder.Append("2");
                                     break;
+                            }
+                            index++;
+                            if (index < notesForThisComma.Count)
+                            {
+                                stringBuilder.Append("/");
                             }
                         }
 
