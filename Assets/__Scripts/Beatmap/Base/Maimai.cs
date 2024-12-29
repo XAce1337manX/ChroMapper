@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Beatmap.Enums;
+using SimpleJSON;
 using UnityEngine;
 
 namespace Beatmap.Base
@@ -11,6 +13,7 @@ namespace Beatmap.Base
     {
         const int beatsInMeasure = 4; // CM works in "beats" while Simai works in measures
 
+        // Simai format
         public static string DoTheThing(BaseDifficulty difficulty)
         {
             var stringBuilder = new StringBuilder();
@@ -23,8 +26,21 @@ namespace Beatmap.Base
             stringBuilder.AppendLine($"&des={songInfo.LevelAuthorName}");
             stringBuilder.AppendLine();
             stringBuilder.AppendLine($"&lv_5=13");
-            stringBuilder.AppendLine($"&inote_5=({songInfo.BeatsPerMinute})");
+            stringBuilder.AppendLine($"&inote_5=");
 
+            var notatedNotes = GetNotatedNotes(difficulty);
+            stringBuilder.AppendLine(notatedNotes);
+            
+            return stringBuilder.ToString();
+        }
+
+        private static string GetNotatedNotes(BaseDifficulty difficulty)
+        {
+            var bpm = BeatSaberSongContainer.Instance.Info.BeatsPerMinute;
+            
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine($"({bpm})");
+            
             var beat = 0;
 
             var notesToScan = difficulty.Notes.Where(x => beat <= x.JsonTime && x.JsonTime < beat + 1).ToList();
@@ -114,8 +130,139 @@ namespace Beatmap.Base
             }
             
             stringBuilder.AppendLine("E");
+
+            return stringBuilder.ToString();
+        }
+        
+        // Format for the viewer
+        public static string DoTheOtherThing(BaseDifficulty difficulty)
+        {
+            var json = new JSONObject();
+                
+            var songInfo = BeatSaberSongContainer.Instance.Info;
+
+            json["title"]= songInfo.SongName;
+            json["artist"] = songInfo.SongAuthorName;
+            json["designer"] = songInfo.LevelAuthorName;
+            json["difficulty"] = "MASTER";
+            json["diffNum"] = 4; // I guess this is basically difficultyRank
+            json["level"] = 13;
+
+            var timingList = new JSONArray();
+
+            var notatedNotes = GetNotatedNotes(difficulty);
+
+            var data = Regex.Replace(notatedNotes, @"\s+", "");
+
+            var i = 0;
+            var realTime = 0.0;
+            var measureDivision = 16;
+            var bpm = (double)songInfo.BeatsPerMinute;
+            while (i < data.Length)
+            {
+                if (data[i] == 'E') break;
+
+                switch (data[i])
+                {
+                    // BPM point
+                    case '(':
+                        {
+                            var j = i + 1;
+                            while (data[j] != ')') j++;
+                    
+                            bpm = float.Parse(data.Substring(i + 1, j - i - 1));
+
+                            i = j + 1;
+                            break;
+                        }
+                    // Measure point
+                    case '{':
+                        {
+                            var j = i + 1;
+                            while (data[j] != '}') j++;
+                    
+                            measureDivision = int.Parse(data.Substring(i + 1, j - i - 1));
+
+                            i = j + 1;
+                            break;
+                        }
+                    case ',':
+                        {
+                            var secondsInBeat = 60 / bpm;
+                            realTime += secondsInBeat / (measureDivision / 4.0);
+                            i++;
+                            break;
+                        }
+                    default:
+                        {
+                            // Here we go. An actual note thing
+                            var timingObject = new JSONObject();
+                            timingObject["currentBpm"] = bpm;
+                            timingObject["havePlayed"] = false;
+                            timingObject["HSpeed"] = 1.0;
+                    
+                            var j = i + 1;
+                            while (data[j] != ',') j++;
+                    
+                            var notesContent = data.Substring(i, j - i);
+
+                            timingObject["notesContent"] = notesContent;
+                            timingObject["rawTextPositionX"] = 1;
+                            timingObject["rawTextPositionY"] = 1;
+                            timingObject["time"] = realTime;
+                    
+                            var noteList = new JSONArray();
+                            var noteString = notesContent.Split('/');
+                            foreach (var note in noteString)
+                            {
+                                var noteObject = new JSONObject();
+
+                                if (note.Contains('h'))
+                                {
+                                    var regex = new Regex(@"\[(\d+):(\d+)\]");
+                                    var matches = regex.Match(note);
+                                    var numerator = int.Parse(matches.Groups[1].Value);
+                                    var denominator = int.Parse(matches.Groups[2].Value);
+                                    var secondsInBeat = 60 / bpm;
+                                    var holdTime = secondsInBeat / (numerator / 4.0) * denominator;
+                                    noteObject["holdTime"] = holdTime;
+                                }
+                                else
+                                {
+                                    noteObject["holdTime"] = 0.0;
+                                }
+                                
+                                
+
+                                noteObject["isBreak"] = note.Contains('b');
+                                noteObject["isEx"] = note.Contains('x');
+                                noteObject["isFakeRotate"] =  false;
+                                noteObject["isForceStar"] =  false;
+                                noteObject["isHanabi"] =  false;
+                                noteObject["isSlideBreak"] =  false;
+                                noteObject["isSlideNoHead"] =  false;
+                                noteObject["noteContent"] = note;
+                                noteObject["noteType"] =  note.Contains('h') ? 2 : 0;
+                                noteObject["slideStartTime"] =  0.0;
+                                noteObject["slideTime"] =  0.0;
+                                noteObject["startPosition"] =  note[0].ToString();
+                                noteObject["touchArea"] =  " ";
+
+                                noteList.Add(noteObject);
+                            }
+                    
+                            timingObject["noteList"] = noteList;
+                            timingList.Add(timingObject);
+                    
+                            i = j;
+                            break;
+                        }
+                }
+            }
             
-            return stringBuilder.ToString();;
+            json["timingList"] = timingList;
+            
+            return json.ToString(2);
         }
         
         // Yoinked from StackExchange

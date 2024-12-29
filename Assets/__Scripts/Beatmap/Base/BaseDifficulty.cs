@@ -333,6 +333,8 @@ namespace Beatmap.Base
             }
             
             File.WriteAllText(Path.Combine(songContainer.Info.Directory, "maidata.txt"), Maimai.DoTheThing(this));
+            
+            File.WriteAllText(Path.Combine(songContainer.Info.Directory, "majdata.json"), Maimai.DoTheOtherThing(this));
 
             return true;
         }

@@ -1,9 +1,13 @@
 using System;
 using System.Collections;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Beatmap.Info;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Networking;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -365,6 +369,46 @@ public class AudioTimeSyncController : MonoBehaviour, CMInput.IPlaybackActions, 
         if (IsPlaying) TogglePlaying();
     }
 
+    private IEnumerator PostToLocalhost()
+    {
+        var json = @$"
+{{
+    ""audioSpeed"": 1.0,
+    ""backgroundCover"": {(IsPlaying ? 0.6 : 0.0)},
+    ""comboStatusType"": 0,
+    ""editorPlayMethod"": 0,
+    ""time"": 0,
+    ""control"": {(IsPlaying ? 0 : 1)},
+    ""jsonPath"": {JsonConvert.ToString(Path.GetFullPath(Path.Combine(BeatSaberSongContainer.Instance.Info.Directory, "majdata.json")))},
+    ""noteSpeed"": 6.5,
+    ""startAt"": {(IsPlaying ? DateTime.Now.Ticks : 0)},
+    ""startTime"": {(IsPlaying ? currentSeconds : 0)},
+    ""touchSpeed"": 6.5,
+    ""smoothSlideAnime"": false
+}}
+";
+        
+        print($"Play toggled - {IsPlaying}");
+
+        using var www = new UnityWebRequest("http://localhost:8013", "POST");
+        var bodyRaw = Encoding.UTF8.GetBytes(json);
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+        www.SetRequestHeader("Content-Type", "application/json");
+        yield return www.SendWebRequest();
+        print("sent request");
+            
+        if (www.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError(www.error);
+        }
+        else
+        {
+            Debug.Log("Posted to viewer!");
+        }
+    }
+    
+
     public void TogglePlaying()
     {
         if (StopScheduled)
@@ -374,6 +418,9 @@ public class AudioTimeSyncController : MonoBehaviour, CMInput.IPlaybackActions, 
         }
 
         IsPlaying = !IsPlaying;
+
+        StartCoroutine(PostToLocalhost());
+
         if (IsPlaying)
         {
             if (CurrentSeconds >= SongAudioSource.clip.length - 0.1f)
