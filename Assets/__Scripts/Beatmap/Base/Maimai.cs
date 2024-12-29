@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Beatmap.Enums;
+using UnityEngine;
 
 namespace Beatmap.Base
 {
@@ -73,6 +75,26 @@ namespace Beatmap.Base
                                     if (baseNote.PosY is 1 or 2) stringBuilder.Append("2");
                                     break;
                             }
+                            
+                            // Red is break note
+                            if (baseNote.Color == (int)NoteColor.Red)
+                            {
+                                stringBuilder.Append("b");
+                            }
+                            
+                            // Dot is ex note
+                            if (baseNote.CutDirection == (int)NoteCutDirection.Any)
+                            {
+                                stringBuilder.Append("x");
+                            }
+
+                            var attachedArc = difficulty.Arcs.Find(arc => Mathf.Approximately(arc.JsonTime, baseNote.JsonTime) && arc.PosX == baseNote.PosX && arc.PosY == baseNote.PosY);
+                            if (attachedArc != null)
+                            {
+                                var arcFraction = RealToFraction(attachedArc.TailJsonTime - attachedArc.JsonTime, 0.001);
+                                stringBuilder.Append($"h[{arcFraction.D * beatsInMeasure}:{arcFraction.N}]");
+                            }
+                            
                             index++;
                             if (index < notesForThisComma.Count)
                             {
