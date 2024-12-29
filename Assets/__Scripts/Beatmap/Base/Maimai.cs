@@ -57,8 +57,8 @@ namespace Beatmap.Base
                             switch (baseNote.PosX)
                             {
                                 case 0:
-                                    if (baseNote.PosY == 0) stringBuilder.Append("7");
-                                    if (baseNote.PosY is 1 or 2) stringBuilder.Append("6");
+                                    if (baseNote.PosY == 0) stringBuilder.Append("6");
+                                    if (baseNote.PosY is 1 or 2) stringBuilder.Append("7");
                                     break;
                                 case 1:
                                     if (baseNote.PosY == 0) stringBuilder.Append("5");
