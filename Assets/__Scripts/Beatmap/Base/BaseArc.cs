@@ -57,12 +57,12 @@ namespace Beatmap.Base
             PosX = start.PosX;
             PosY = start.PosY;
             CutDirection = start.CutDirection;
-            HeadControlPointLengthMultiplier = 1f;
+            HeadControlPointLengthMultiplier = 0f;
             SetTailTimes(end.JsonTime, end.SongBpmTime);
             TailPosX = end.PosX;
             TailPosY = end.PosY;
             TailCutDirection = end.CutDirection;
-            TailControlPointLengthMultiplier = 1f;
+            TailControlPointLengthMultiplier = 0f;
             MidAnchorMode = 0;
             CustomData = SaveCustomFromNotes(start, end);
         }

@@ -11,8 +11,9 @@ namespace Beatmap.Base
 {
     public static class Maimai
     {
-        const int beatsInMeasure = 4; // CM works in "beats" while Simai works in measures
-
+        private const int beatsInMeasure = 4; // CM works in "beats" while Simai works in measures
+        private const double accuracy = 0.001;
+        
         // Simai format
         public static string DoTheThing(BaseDifficulty difficulty)
         {
@@ -52,7 +53,11 @@ namespace Beatmap.Base
                 }
                 else
                 {
-                    var fractions = notesToScan.Select(baseNote => (baseNote, RealToFraction(baseNote.JsonTime, 0.001))).ToList();
+                    var fractions = notesToScan.Select(baseNote => (baseNote, RealToFraction(baseNote.JsonTime, accuracy))).ToList();
+                    foreach (var fraction in fractions)
+                    {
+                        fraction.Item2.N %= fraction.Item2.D;
+                    }
                     
                     var lcm = LCM(fractions.Select(f => f.Item2.D)) * beatsInMeasure;
 
@@ -72,25 +77,8 @@ namespace Beatmap.Base
                         {
                             var baseNote = thingy.baseNote;
                             // Note position
-                            switch (baseNote.PosX)
-                            {
-                                case 0:
-                                    if (baseNote.PosY == 0) stringBuilder.Append("6");
-                                    if (baseNote.PosY is 1 or 2) stringBuilder.Append("7");
-                                    break;
-                                case 1:
-                                    if (baseNote.PosY == 0) stringBuilder.Append("5");
-                                    if (baseNote.PosY is 1 or 2) stringBuilder.Append("8");
-                                    break;
-                                case 2:
-                                    if (baseNote.PosY == 0) stringBuilder.Append("4");
-                                    if (baseNote.PosY is 1 or 2) stringBuilder.Append("1");
-                                    break;
-                                case 3:
-                                    if (baseNote.PosY == 0) stringBuilder.Append("3");
-                                    if (baseNote.PosY is 1 or 2) stringBuilder.Append("2");
-                                    break;
-                            }
+                            var position = GetPosition(baseNote);
+                            stringBuilder.Append($"{position}");
                             
                             // Red is break note
                             if (baseNote.Color == (int)NoteColor.Red)
@@ -104,11 +92,69 @@ namespace Beatmap.Base
                                 stringBuilder.Append("x");
                             }
 
+                            // Attached arcs are holds
                             var attachedArc = difficulty.Arcs.Find(arc => Mathf.Approximately(arc.JsonTime, baseNote.JsonTime) && arc.PosX == baseNote.PosX && arc.PosY == baseNote.PosY);
                             if (attachedArc != null)
                             {
-                                var arcFraction = RealToFraction(attachedArc.TailJsonTime - attachedArc.JsonTime, 0.001);
+                                var arcFraction = RealToFraction(attachedArc.TailJsonTime - attachedArc.JsonTime, accuracy);
                                 stringBuilder.Append($"h[{arcFraction.D * beatsInMeasure}:{arcFraction.N}]");
+                            }
+                            
+                            
+                            // Attached chains to attached arcs are slides
+                            var attachedChain = difficulty.Chains.Find(chain => Mathf.Approximately(chain.JsonTime, baseNote.JsonTime) && chain.PosX == baseNote.PosX && chain.PosY == baseNote.PosY);
+                            if (attachedChain != null)
+                            {
+                                var slideArc = difficulty.Arcs.Find(arc => Mathf.Approximately(arc.JsonTime, attachedChain.TailJsonTime) && arc.PosX == attachedChain.PosX && arc.PosY == attachedChain.PosY);
+                                if (slideArc != null)
+                                {
+                                    var tailPosition = GetTailPosition(slideArc);
+                                    if (slideArc.HeadControlPointLengthMultiplier == 0f)
+                                    {
+                                        stringBuilder.Append($"-{tailPosition}");
+                                    }
+                                    else
+                                    {
+                                        if (slideArc.CutDirection is (int)NoteCutDirection.Right
+                                            or (int)NoteCutDirection.UpRight or (int)NoteCutDirection.DownRight)
+                                        {
+                                            stringBuilder.Append($">{tailPosition}");
+                                        }
+                                        else
+                                        {
+                                            stringBuilder.Append($"<{tailPosition}");
+                                        }
+                                    }
+                                    
+                                    // What a pain. Calculate the bpm and divisions needed.
+                                    stringBuilder.Append('[');
+                                    
+                                    var bpmFraction = RealToFraction(attachedChain.TailJsonTime - attachedChain.JsonTime, accuracy);
+                                    var slideDelayBpm = bpm * bpmFraction.D / bpmFraction.N;
+
+                                    var slideFraction = RealToFraction(slideArc.TailJsonTime - slideArc.JsonTime, accuracy);
+                                    
+                                    var x = slideFraction.D * beatsInMeasure;
+                                    var y = slideFraction.N;
+
+                                    var bpmScaling = slideDelayBpm / bpm;
+
+                                    var yScaled = y * bpmScaling;
+                                    var yScaledDecimal = yScaled - (int)yScaled;
+                                    if (yScaledDecimal > 0.001f) 
+                                    {
+                                        // Simai doesn't support floats in here so scale it to int
+                                        var correctionFraction = RealToFraction(yScaledDecimal, accuracy);
+                                        x *= correctionFraction.D;
+                                        y = Mathf.RoundToInt(y * bpmScaling * correctionFraction.D);
+                                    }
+                                    else
+                                    {
+                                        y = Mathf.RoundToInt(y * bpmScaling);
+                                    }
+                                    
+                                    stringBuilder.Append($"{slideDelayBpm}#{x}:{y}]");
+                                }
                             }
                             
                             index++;
@@ -132,6 +178,56 @@ namespace Beatmap.Base
             stringBuilder.AppendLine("E");
 
             return stringBuilder.ToString();
+        }
+
+        private static int GetPosition(BaseGrid baseGrid)
+        {
+            switch (baseGrid.PosX)
+            {
+                case 0:
+                    if (baseGrid.PosY == 0) return 6;
+                    if (baseGrid.PosY is 1 or 2) return 7;
+                    break;
+                case 1:
+                    if (baseGrid.PosY == 0) return 5;
+                    if (baseGrid.PosY is 1 or 2) return 8;
+                    break;
+                case 2:
+                    if (baseGrid.PosY == 0) return 4;
+                    if (baseGrid.PosY is 1 or 2) return 1;
+                    break;
+                case 3:
+                    if (baseGrid.PosY == 0) return 3;
+                    if (baseGrid.PosY is 1 or 2) return 2;
+                    break;
+            }
+
+            return 1;
+        }
+        
+        private static int GetTailPosition(BaseSlider baseSlider)
+        {
+            switch (baseSlider.TailPosX)
+            {
+                case 0:
+                    if (baseSlider.TailPosY == 0) return 6;
+                    if (baseSlider.TailPosY is 1 or 2) return 7;
+                    break;
+                case 1:
+                    if (baseSlider.TailPosY == 0) return 5;
+                    if (baseSlider.TailPosY is 1 or 2) return 8;
+                    break;
+                case 2:
+                    if (baseSlider.TailPosY == 0) return 4;
+                    if (baseSlider.TailPosY is 1 or 2) return 1;
+                    break;
+                case 3:
+                    if (baseSlider.TailPosY == 0) return 3;
+                    if (baseSlider.TailPosY is 1 or 2) return 2;
+                    break;
+            }
+
+            return 1;
         }
         
         // Format for the viewer
@@ -217,6 +313,10 @@ namespace Beatmap.Base
                             {
                                 var noteObject = new JSONObject();
 
+                                noteObject["noteType"] = 0; // Default to tap
+                                
+                                
+                                // Is Hold
                                 if (note.Contains('h'))
                                 {
                                     var regex = new Regex(@"\[(\d+):(\d+)\]");
@@ -226,10 +326,42 @@ namespace Beatmap.Base
                                     var secondsInBeat = 60 / bpm;
                                     var holdTime = secondsInBeat / (numerator / 4.0) * denominator;
                                     noteObject["holdTime"] = holdTime;
+                                    noteObject["noteType"] = 2;
                                 }
                                 else
                                 {
                                     noteObject["holdTime"] = 0.0;
+                                }
+                                
+                                // Is Arc
+                                if (note.Contains('-') || note.Contains('<') || note.Contains('>'))
+                                {
+                                    // Matches are:
+                                    // * Slide start position
+                                    // * Slide type
+                                    // * Slide end position
+                                    // * Slide bpm
+                                    // * Slide numerator
+                                    // * Slide denominator
+                                    // e.g. 5>2[86.66666#12:2]
+                                    var regex = new Regex(@"(\d)([-<>])(\d)\[(\d+\.?\d*)#(\d+)\:(\d+)\]");
+                                    
+                                    var matches = regex.Match(note);
+                                    var slideBpm = double.Parse(matches.Groups[4].Value);
+                                    var numerator = int.Parse(matches.Groups[5].Value);
+                                    var denominator = int.Parse(matches.Groups[6].Value);
+                                    var secondsInSlideBeat = 60 / slideBpm;
+                                    var slideStartTime = realTime + secondsInSlideBeat;
+                                    var slideTime = secondsInSlideBeat / (numerator / 4.0) * denominator;
+                                    
+                                    noteObject["noteType"] = 1;
+                                    noteObject["slideStartTime"] = slideStartTime;
+                                    noteObject["slideTime"] =  slideTime;
+                                }
+                                else
+                                {
+                                    noteObject["slideStartTime"] =  0.0;
+                                    noteObject["slideTime"] =  0.0;
                                 }
                                 
                                 
@@ -242,9 +374,6 @@ namespace Beatmap.Base
                                 noteObject["isSlideBreak"] =  false;
                                 noteObject["isSlideNoHead"] =  false;
                                 noteObject["noteContent"] = note;
-                                noteObject["noteType"] =  note.Contains('h') ? 2 : 0;
-                                noteObject["slideStartTime"] =  0.0;
-                                noteObject["slideTime"] =  0.0;
                                 noteObject["startPosition"] =  note[0].ToString();
                                 noteObject["touchArea"] =  " ";
 
@@ -289,7 +418,7 @@ namespace Beatmap.Base
 
             public Fraction(int n, int d)
             {
-                N = n % d;
+                N = n;
                 D = d;
             }
         }
