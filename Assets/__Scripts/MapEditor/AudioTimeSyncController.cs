@@ -373,7 +373,7 @@ public class AudioTimeSyncController : MonoBehaviour, CMInput.IPlaybackActions, 
     {
         var json = @$"
 {{
-    ""audioSpeed"": 1.0,
+    ""audioSpeed"": {songSpeed / 10f},
     ""backgroundCover"": {(IsPlaying ? 0.6 : 0.0)},
     ""comboStatusType"": 0,
     ""editorPlayMethod"": 0,
