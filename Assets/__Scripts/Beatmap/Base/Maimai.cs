@@ -117,8 +117,11 @@ namespace Beatmap.Base
                             var attachedChain = difficulty.Chains.Find(chain => Mathf.Approximately(chain.JsonTime, baseNote.JsonTime) && chain.PosX == baseNote.PosX && chain.PosY == baseNote.PosY);
                             if (attachedChain != null)
                             {
+                                // Loop to do chained slides
+                                float lastSlideTime = default;
                                 var slideArc = difficulty.Arcs.Find(arc => Mathf.Approximately(arc.JsonTime, attachedChain.TailJsonTime) && arc.PosX == attachedChain.PosX && arc.PosY == attachedChain.PosY);
-                                if (slideArc != null)
+
+                                while (slideArc != null)
                                 {
                                     var tailPosition = GetTailPosition(slideArc);
                                     if (slideArc.HeadControlPointLengthMultiplier == 0f)
@@ -137,14 +140,21 @@ namespace Beatmap.Base
                                             stringBuilder.Append($"<{tailPosition}");
                                         }
                                     }
+
+                                    lastSlideTime = slideArc.TailJsonTime;
                                     
+                                    slideArc = difficulty.Arcs.Find(arc => Mathf.Approximately(arc.JsonTime, slideArc.TailJsonTime) && arc.PosX == slideArc.TailPosX && arc.PosY == slideArc.TailPosY);
+                                }
+
+                                if (!Mathf.Approximately(lastSlideTime, default))
+                                {
                                     // What a pain. Calculate the bpm and divisions needed.
                                     stringBuilder.Append('[');
                                     
                                     var bpmFraction = RealToFraction(attachedChain.TailJsonTime - attachedChain.JsonTime, accuracy);
                                     var slideDelayBpm = bpm * bpmFraction.D / bpmFraction.N;
 
-                                    var slideFraction = RealToFraction(slideArc.TailJsonTime - slideArc.JsonTime, accuracy);
+                                    var slideFraction = RealToFraction(lastSlideTime - attachedChain.TailJsonTime, accuracy);
                                     
                                     var x = slideFraction.D * beatsInMeasure;
                                     var y = slideFraction.N;
@@ -166,6 +176,7 @@ namespace Beatmap.Base
                                     }
                                     
                                     stringBuilder.Append($"{slideDelayBpm}#{x}:{y}]");
+                                    
                                 }
                             }
                             
@@ -352,20 +363,21 @@ namespace Beatmap.Base
                                 // Is Arc
                                 if (note.Contains('-') || note.Contains('<') || note.Contains('>'))
                                 {
-                                    // Matches are:
-                                    // * Slide start position
-                                    // * Slide type
-                                    // * Slide end position
-                                    // * Slide bpm
-                                    // * Slide numerator
-                                    // * Slide denominator
-                                    // e.g. 5>2[86.66666#12:2]
-                                    var regex = new Regex(@"(\d)([-<>])(\d)\[(\d+\.?\d*)#(\d+)\:(\d+)\]");
+                                    // e.g. 5>2<5[86.66666#12:2] (I only need the parse the brackets but whatever)
+                                    // Groups are:
+                                    // 1 - 5>2<5
+                                    // 2.1 - 5     Slide start position
+                                    // 2.2 - >2    Slide types + next position
+                                    // 2.3 - <5
+                                    // 3 - 86.6666 Slide bpm
+                                    // 4 - 12      Slide numerator
+                                    // 5 - 2       Slide denominator
+                                    var regex = new Regex(@"(([-<>]?\d)*)\[(\d+\.?\d*)#(\d+)\:(\d+)\]");
                                     
-                                    var matches = regex.Match(note);
-                                    var slideBpm = double.Parse(matches.Groups[4].Value);
-                                    var numerator = int.Parse(matches.Groups[5].Value);
-                                    var denominator = int.Parse(matches.Groups[6].Value);
+                                    var match = regex.Match(note);
+                                    var slideBpm = double.Parse(match.Groups[3].Value);
+                                    var numerator = int.Parse(match.Groups[4].Value);
+                                    var denominator = int.Parse(match.Groups[5].Value);
                                     var secondsInSlideBeat = 60 / slideBpm;
                                     var slideStartTime = realTime + secondsInSlideBeat;
                                     var slideTime = secondsInSlideBeat / (numerator / 4.0) * denominator;
@@ -379,8 +391,6 @@ namespace Beatmap.Base
                                     noteObject["slideStartTime"] =  0.0;
                                     noteObject["slideTime"] =  0.0;
                                 }
-                                
-                                
 
                                 noteObject["isBreak"] = note.Contains('b');
                                 noteObject["isEx"] = note.Contains('x');
