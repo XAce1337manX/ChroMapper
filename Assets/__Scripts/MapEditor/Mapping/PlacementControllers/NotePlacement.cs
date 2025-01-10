@@ -129,7 +129,7 @@ public class NotePlacement : PlacementController<BaseNote, NoteContainer, NoteGr
         var posY = (int)roundedHit.y;
 
         var vanillaX = Mathf.Clamp(posX, 0, 3);
-        var vanillaY = Mathf.Clamp(posY, 0, 2);
+        var vanillaY = Mathf.Clamp(posY, 0, 3);
 
         var vanillaBounds = vanillaX == posX && vanillaY == posY;
 
