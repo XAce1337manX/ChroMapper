@@ -47,6 +47,18 @@ namespace Beatmap.Base
             var notesToScan = difficulty.Notes.Where(x => beat <= x.JsonTime && x.JsonTime < beat + 1).ToList();
             while (notesToScan.Count != 0 || difficulty.Notes.Any(x => x.JsonTime > beat))
             {
+                var bpmEvent = difficulty.BpmEvents.Find(x => Mathf.Approximately(x.JsonTime, beat));
+                if (bpmEvent != null)
+                {
+                    stringBuilder.AppendLine($"({bpmEvent.Bpm})");
+                }
+                
+                var bookmark = difficulty.Bookmarks.Find(x => Mathf.Approximately(x.JsonTime, beat));
+                if (bookmark != null)
+                {
+                    stringBuilder.AppendLine($"|| {bookmark.Name}");
+                }
+                
                 if (notesToScan.Count == 0)
                 {
                     stringBuilder.AppendLine("{16},,,,");
@@ -248,7 +260,11 @@ namespace Beatmap.Base
 
             var notatedNotes = GetNotatedNotes(difficulty);
 
-            var data = Regex.Replace(notatedNotes, @"\s+", "");
+            // Yeet comments
+            var data = Regex.Replace(notatedNotes, $@"\|\| .*{Environment.NewLine}", "");
+            
+            // Yeet whitespace
+            data = Regex.Replace(data, @"\s+", "");
 
             var i = 0;
             var realTime = 0.0;
