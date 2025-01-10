@@ -209,19 +209,19 @@ namespace Beatmap.Base
             {
                 case 0:
                     if (baseGrid.PosY is 0 or 1) return 6;
-                    if (baseGrid.PosY is 3 or 4) return 7;
+                    if (baseGrid.PosY is 2 or 3) return 7;
                     break;
                 case 1:
                     if (baseGrid.PosY is 0 or 1) return 5;
-                    if (baseGrid.PosY is 3 or 4) return 8;
+                    if (baseGrid.PosY is 2 or 3) return 8;
                     break;
                 case 2:
                     if (baseGrid.PosY is 0 or 1) return 4;
-                    if (baseGrid.PosY is 3 or 4) return 1;
+                    if (baseGrid.PosY is 2 or 3) return 1;
                     break;
                 case 3:
                     if (baseGrid.PosY is 0 or 1) return 3;
-                    if (baseGrid.PosY is 3 or 4) return 2;
+                    if (baseGrid.PosY is 2 or 3) return 2;
                     break;
             }
 
@@ -234,19 +234,19 @@ namespace Beatmap.Base
             {
                 case 0:
                     if (baseSlider.TailPosY is 0 or 1) return 6;
-                    if (baseSlider.TailPosY is 3 or 4) return 7;
+                    if (baseSlider.TailPosY is 2 or 3) return 7;
                     break;
                 case 1:
                     if (baseSlider.TailPosY is 0 or 1) return 5;
-                    if (baseSlider.TailPosY is 3 or 4) return 8;
+                    if (baseSlider.TailPosY is 2 or 3) return 8;
                     break;
                 case 2:
                     if (baseSlider.TailPosY is 0 or 1) return 4;
-                    if (baseSlider.TailPosY is 3 or 4) return 1;
+                    if (baseSlider.TailPosY is 2 or 3) return 1;
                     break;
                 case 3:
                     if (baseSlider.TailPosY is 0 or 1) return 3;
-                    if (baseSlider.TailPosY is 3 or 4) return 2;
+                    if (baseSlider.TailPosY is 2 or 3) return 2;
                     break;
             }
 
