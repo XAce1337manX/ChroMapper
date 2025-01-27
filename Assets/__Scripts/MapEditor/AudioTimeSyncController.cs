@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Beatmap.Base;
 using Beatmap.Info;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -371,6 +372,9 @@ public class AudioTimeSyncController : MonoBehaviour, CMInput.IPlaybackActions, 
 
     private IEnumerator PostToLocalhost()
     {
+        var mapInstance = BeatSaberSongContainer.Instance;
+        File.WriteAllText(Path.Combine(mapInstance.Info.Directory, "majdata.json"), Maimai.DoTheOtherThing(mapInstance.Map));
+        
         var json = @$"
 {{
     ""audioSpeed"": {songSpeed / 10f},
