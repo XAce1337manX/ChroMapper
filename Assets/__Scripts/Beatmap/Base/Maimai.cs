@@ -397,7 +397,7 @@ namespace Beatmap.Base
                                 noteObject["isFakeRotate"] =  false;
                                 noteObject["isForceStar"] =  false;
                                 noteObject["isHanabi"] =  false;
-                                noteObject["isSlideBreak"] =  false;
+                                noteObject["isSlideBreak"] =  note.Contains('b');
                                 noteObject["isSlideNoHead"] =  false;
                                 noteObject["noteContent"] = note;
                                 noteObject["startPosition"] =  note[0].ToString();
