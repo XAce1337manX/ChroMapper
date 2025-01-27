@@ -447,6 +447,8 @@ namespace Beatmap.Base
                 N = n;
                 D = d;
             }
+
+            public override string ToString() => $"Fraction({N}, {D})";
         }
         
         private static Fraction RealToFraction(double value, double accuracy)
@@ -464,7 +466,7 @@ namespace Beatmap.Base
             }
 
             // Accuracy is the maximum relative error; convert to absolute maxError
-            double maxError = sign == 0 ? accuracy : value * accuracy;
+            double maxError = sign == 0 ? accuracy : Math.Pow(value, 0.5) * accuracy;
 
             int n = (int)Math.Floor(value);
             value -= n;
