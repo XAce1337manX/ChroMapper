@@ -105,7 +105,9 @@ namespace Beatmap.Base
                             }
 
                             // Attached arcs are holds
-                            var attachedArc = difficulty.Arcs.Find(arc => Mathf.Approximately(arc.JsonTime, baseNote.JsonTime) && arc.PosX == baseNote.PosX && arc.PosY == baseNote.PosY);
+                            var attachedArc = difficulty.Arcs.Find(arc => Mathf.Approximately(arc.JsonTime, baseNote.JsonTime)
+                                                                          && arc.PosX == baseNote.PosX && arc.PosY == baseNote.PosY
+                                                                          && arc.PosX == arc.TailPosX  && arc.PosY == arc.TailPosY);
                             if (attachedArc != null)
                             {
                                 var arcFraction = RealToFraction(attachedArc.TailJsonTime - attachedArc.JsonTime, accuracy);
@@ -148,6 +150,12 @@ namespace Beatmap.Base
 
                                 if (!Mathf.Approximately(lastSlideTime, default))
                                 {
+                                    // Finally red chain is break slide
+                                    if (attachedChain.Color == (int)NoteColor.Red)
+                                    {
+                                        stringBuilder.Append("b");
+                                    }
+                                    
                                     // What a pain. Calculate the bpm and divisions needed.
                                     stringBuilder.Append('[');
                                     
@@ -363,21 +371,23 @@ namespace Beatmap.Base
                                 // Is Arc
                                 if (note.Contains('-') || note.Contains('<') || note.Contains('>'))
                                 {
-                                    // e.g. 5>2<5[86.66666#12:2] (I only need the parse the brackets but whatever)
+                                    // e.g. 5>2<5b[86.66666#12:2] (I only need the parse the brackets but whatever)
                                     // Groups are:
                                     // 1 - 5>2<5
                                     // 2.1 - 5     Slide start position
                                     // 2.2 - >2    Slide types + next position
                                     // 2.3 - <5
-                                    // 3 - 86.6666 Slide bpm
-                                    // 4 - 12      Slide numerator
-                                    // 5 - 2       Slide denominator
-                                    var regex = new Regex(@"(([-<>]?\d)*)\[(\d+\.?\d*)#(\d+)\:(\d+)\]");
+                                    // 3 - b       Slide break (optional)
+                                    // 4 - 86.6666 Slide bpm
+                                    // 5 - 12      Slide numerator
+                                    // 6 - 2       Slide denominator
+                                    var regex = new Regex(@"(([-<>]?\d)*)(b?)\[(\d+\.?\d*)#(\d+)\:(\d+)\]");
                                     
                                     var match = regex.Match(note);
-                                    var slideBpm = double.Parse(match.Groups[3].Value);
-                                    var numerator = int.Parse(match.Groups[4].Value);
-                                    var denominator = int.Parse(match.Groups[5].Value);
+                                    var isSlideBreak = match.Groups[3].Value == "b";
+                                    var slideBpm = double.Parse(match.Groups[4].Value);
+                                    var numerator = int.Parse(match.Groups[5].Value);
+                                    var denominator = int.Parse(match.Groups[6].Value);
                                     var secondsInSlideBeat = 60 / slideBpm;
                                     var slideStartTime = realTime + secondsInSlideBeat;
                                     var slideTime = secondsInSlideBeat / (numerator / 4.0) * denominator;
@@ -385,21 +395,22 @@ namespace Beatmap.Base
                                     noteObject["noteType"] = 1;
                                     noteObject["slideStartTime"] = slideStartTime;
                                     noteObject["slideTime"] =  slideTime;
+                                    noteObject["isSlideBreak"] =  isSlideBreak;
                                 }
                                 else
                                 {
                                     noteObject["slideStartTime"] =  0.0;
                                     noteObject["slideTime"] =  0.0;
+                                    noteObject["isSlideBreak"] =  false;
                                 }
 
-                                noteObject["isBreak"] = note.Contains('b');
+                                noteObject["isBreak"] = note.ElementAtOrDefault(1) == 'b' || note.ElementAtOrDefault(2) == 'b'; // Hacky assumption
                                 noteObject["isEx"] = note.Contains('x');
                                 noteObject["isFakeRotate"] =  false;
                                 noteObject["isForceStar"] =  false;
                                 noteObject["isHanabi"] =  false;
-                                noteObject["isSlideBreak"] =  note.Contains('b');
                                 noteObject["isSlideNoHead"] =  false;
-                                noteObject["noteContent"] = note;
+                                noteObject["noteContent"] = note.Replace("b", "");
                                 noteObject["startPosition"] =  note[0].ToString();
                                 noteObject["touchArea"] =  " ";
 
