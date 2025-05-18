@@ -751,6 +751,14 @@ MonoBehaviour:
     m_Key: change.beatmap.version.warning
     m_Metadata:
       m_Items: []
+  - m_Id: 502391667578236928
+    m_Key: place.chain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 502391726109749248
+    m_Key: place.arc
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
