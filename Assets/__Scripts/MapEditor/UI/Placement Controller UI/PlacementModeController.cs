@@ -10,7 +10,10 @@ public class PlacementModeController : MonoBehaviour
         [PickerChoice("Mapper", "place.wall")] Wall,
 
         [PickerChoice("Mapper", "place.delete")]
-        Delete
+        Delete,
+        
+        [PickerChoice("Mapper", "place.arc")] Arc,
+        [PickerChoice("Mapper", "place.chain")] Chain,
     }
 
     [SerializeField] private NotePlacement notePlacement;
@@ -36,6 +39,17 @@ public class PlacementModeController : MonoBehaviour
     private void UpdateMode(Enum placementMode)
     {
         var mode = (PlacementMode)placementMode;
+
+        if (mode == PlacementMode.Arc)
+        {
+            modePicker.Select(mode = PlacementMode.Note);
+        }
+        
+        if (mode == PlacementMode.Chain)
+        {
+            modePicker.Select(mode = PlacementMode.Note);
+        }
+            
         notePlacement.IsActive = mode == PlacementMode.Note;
         bombPlacement.IsActive = mode == PlacementMode.Bomb;
         obstaclePlacement.IsActive = mode == PlacementMode.Wall;
